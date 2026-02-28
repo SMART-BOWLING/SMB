@@ -42,7 +42,7 @@
             align-items: center;
             gap: 25px;
             width: 100%;
-            max-width: 900px;
+            max-width: 1200px; /* Увеличил максимальную ширину для трех колонок */
             animation: fadeIn 0.8s ease;
         }
 
@@ -159,10 +159,10 @@
             color: var(--accent);
         }
 
-        /* ===== ACTION GRID (всегда 2 колонки) ===== */
+        /* ===== ACTION GRID - теперь 3 колонки на ПК ===== */
         .action-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr); /* Изменил с 2 на 3 */
             gap: 20px;
             width: 100%;
             margin-top: 20px;
@@ -269,6 +269,13 @@
         #access-denied h3 { color: var(--accent); }
         .denied-email { background: #fff1f2; color: var(--accent); padding: 10px; border-radius: 10px; margin: 15px 0; font-family: monospace; }
 
+        /* --- АДАПТАЦИЯ ДЛЯ ПЛАНШЕТОВ --- */
+        @media (max-width: 768px) {
+            .action-grid {
+                grid-template-columns: repeat(2, 1fr); /* На планшетах 2 колонки */
+            }
+        }
+
         /* --- АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ --- */
         @media (max-width: 480px) {
             .action-grid, .top-buttons {
@@ -288,7 +295,7 @@
         /* Если экран совсем узкий, можно переключить основные кнопки в 1 колонку */
         @media (max-width: 360px) {
             .action-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr; /* На очень узких экранах 1 колонка */
             }
         }
     </style>
@@ -344,7 +351,7 @@
             </a>
         </div>
 
-        <!-- Сетка 2x2 для основных разделов -->
+        <!-- Сетка 3xN для основных разделов (на ПК) -->
         <div class="action-grid">
             <div class="action-card" id="card-parts">
                 <button class="action-btn" onclick="handleAction('parts')">
