@@ -2,249 +2,216 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>SMB | Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMB | Pro Dashboard</title>
 
-    <link rel="icon" type="image/png" sizes="192x192" href="https://i.postimg.cc/QNkbRTbS/1.png">
-    <link rel="shortcut icon" href="https://i.postimg.cc/QNkbRTbS/1.png">
-
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/QNkbRTbS/1.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
         :root {
-            --primary: #1f2937;
-            --accent: #dc143c;
-            --accent-hover: #b91c1c;
-            --bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            --white: #ffffff;
-            --text-dark: #1e293b;
+            --primary: #0f172a;
+            --accent: #ef4444;
+            --accent-hover: #dc2626;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
             --text-muted: #64748b;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --border: #e2e8f0;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             margin: 0;
+            background-color: var(--bg);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            color: var(--text-main);
+            display: flex;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: var(--bg);
-            background-attachment: fixed;
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-            padding: 20px;
-            color: var(--text-dark);
         }
 
-        .container {
+        /* ===== LAYOUT ===== */
+        .app-container {
+            display: flex;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            color: white;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            width: 100%;
-            max-width: 850px;
-            animation: fadeIn 0.6s ease-out;
+            padding: 24px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            transition: 0.3s;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ===== AUTH & USER INFO ===== */
-        #login, #user-info, #access-denied {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 24px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            width: 100%;
-        }
-
-        #login { max-width: 400px; text-align: center; padding: 40px 30px; }
-        #login i { font-size: 50px; color: var(--primary); margin-bottom: 20px; }
-        #login h2 { margin-bottom: 30px; font-weight: 800; letter-spacing: -0.5px; }
-
-        #user-info {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 15px;
-            padding: 12px 20px;
-        }
-
-        #user-info img {
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            border: 2px solid var(--accent);
-            box-shadow: 0 0 0 4px rgba(220, 20, 60, 0.1);
-        }
-
-        #user-info .user-details { flex-grow: 1; overflow: hidden; }
-        #user-info p { margin: 0; font-size: 14px; font-weight: 700; color: var(--primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        #user-info #user-email { font-weight: 400; color: var(--text-muted); font-size: 12px; }
-
-        #logout-btn {
-            background: #f1f5f9;
-            color: var(--text-dark);
-            border: none;
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: var(--transition);
+        .logo-area {
             display: flex;
             align-items: center;
-            justify-content: center;
-        }
-
-        #logout-btn:hover { background: var(--accent); color: white; transform: rotate(8deg); }
-
-        /* ===== ACTION GRID ===== */
-        .action-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            width: 100%;
-        }
-
-        .action-card {
-            background: var(--white);
-            border-radius: 22px;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition);
-            border: 1px solid rgba(0,0,0,0.03);
-            position: relative;
-        }
-
-        .action-card:hover:not(.disabled) {
-            transform: translateY(-5px);
-            border-color: var(--accent);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
-        }
-
-        .action-btn {
-            width: 100%;
-            aspect-ratio: 1 / 0.9;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             gap: 12px;
-            padding: 15px;
-            text-decoration: none;
-            color: inherit;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
         }
 
-        .action-btn i {
-            font-size: 30px;
-            color: var(--primary);
-            transition: var(--transition);
+        .logo-area img { width: 35px; height: 35px; }
+        .logo-area span { font-weight: 800; font-size: 20px; letter-spacing: 1px; }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-stage {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
         }
 
-        .action-card:hover:not(.disabled) .action-btn i {
-            color: var(--accent);
-            transform: scale(1.1);
-        }
-
-        .action-btn span {
-            font-weight: 700;
-            font-size: 11px;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            color: var(--primary);
-            text-align: center;
-        }
-
-        /* Индикатор наличия подменю */
-        .has-dropdown .action-btn::after {
-            content: '\f0d7';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            font-size: 10px;
-            color: var(--text-muted);
-            margin-top: -4px;
-        }
-
-        /* ===== DROPDOWN ===== */
-        .action-dropdown {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            background: #f8fafc;
-        }
-
-        .action-dropdown.active {
-            max-height: 350px;
-            border-top: 1px solid #f1f5f9;
-            padding: 8px 0;
-        }
-
-        .action-link {
-            padding: 12px 18px;
-            text-decoration: none;
-            color: var(--text-dark);
-            font-size: 13px;
-            font-weight: 600;
+        .header-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: var(--transition);
-            margin: 4px 10px;
-            border-radius: 10px;
+            margin-bottom: 30px;
         }
 
-        .action-link:hover {
-            background: var(--primary);
+        /* ===== USER PROFILE BLOCK ===== */
+        .profile-card {
+            background: var(--card-bg);
+            padding: 8px 16px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .profile-card img { width: 32px; height: 32px; border-radius: 50%; }
+        .profile-card .info { line-height: 1.2; }
+        .profile-card .name { font-size: 14px; font-weight: 600; }
+        .logout-mini { 
+            background: none; border: none; color: var(--text-muted); 
+            cursor: pointer; padding: 5px; transition: 0.2s;
+        }
+        .logout-mini:hover { color: var(--accent); }
+
+        /* ===== GRID SYSTEM ===== */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card:hover:not(.disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+            border-color: var(--accent);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: #f1f5f9;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--primary);
+            transition: 0.3s;
+        }
+
+        .card:hover .card-icon {
+            background: var(--accent);
             color: white;
-            padding-left: 22px;
         }
 
-        .action-link::after {
-            content: '\f105';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            opacity: 0.5;
+        .card-title { font-weight: 700; font-size: 18px; margin: 0; }
+        .card-desc { color: var(--text-muted); font-size: 13px; margin: 0; }
+
+        /* ===== DROP LINKS ===== */
+        .drop-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
         }
 
-        /* ===== UTILS & DENIED ===== */
-        .disabled { opacity: 0.35; filter: grayscale(1); pointer-events: none; }
-        
-        #access-denied { text-align: center; max-width: 400px; }
-        #access-denied h3 { color: var(--accent); margin-top: 0; }
-        .denied-email { background: #fee2e2; color: var(--accent); padding: 12px; border-radius: 12px; margin: 15px 0; font-family: monospace; font-size: 14px; }
+        .drop-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: #f8fafc;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
 
-        /* --- RESPONSIVE --- */
+        .drop-item:hover { background: var(--primary); color: white; }
+
+        /* ===== AUTH PAGE ===== */
+        .auth-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .auth-box {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* ===== UTILS ===== */
+        .disabled { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
+        .hidden { display: none !important; }
+
         @media (max-width: 768px) {
-            .action-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .action-btn { aspect-ratio: 1 / 1; }
-        }
-
-        @media (max-width: 400px) {
-            .action-grid { grid-template-columns: 1fr; }
-            .action-btn { aspect-ratio: auto; padding: 25px; flex-direction: row; justify-content: flex-start; gap: 20px; }
-            .action-btn i { width: 30px; text-align: center; }
-            .has-dropdown .action-btn::after { margin-left: auto; }
+            .sidebar { display: none; }
+            .main-stage { padding: 20px; }
+            .header-bar { flex-direction: column; gap: 20px; align-items: flex-start; }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-
-    <div id="login">
-        <i class="fas fa-shield-halved"></i>
-        <h2>SMB Terminal</h2>
+<div id="login-screen" class="auth-screen">
+    <div class="auth-box">
+        <img src="https://i.postimg.cc/QNkbRTbS/1.png" alt="Logo" style="width: 60px; margin-bottom: 20px;">
+        <h2 style="margin-bottom: 10px;">Welcome Back</h2>
+        <p style="color: var(--text-muted); margin-bottom: 30px;">Please sign in to access SMB Dashboard</p>
         <div id="g_id_onload"
              data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com"
              data-callback="handleCredentialResponse"
@@ -252,80 +219,103 @@
         </div>
         <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_black"></div>
     </div>
+</div>
 
-    <div id="user-info" style="display: none;">
-        <img id="user-pic" src="" alt="Profile">
-        <div class="user-details">
-            <p id="user-name"></p>
-            <p id="user-email"></p>
+<div id="app" class="app-container hidden">
+    <aside class="sidebar">
+        <div class="logo-area">
+            <img src="https://i.postimg.cc/QNkbRTbS/1.png" alt="SMB">
+            <span>SMB PRO</span>
         </div>
-        <button id="logout-btn" onclick="signOut()" title="Sign Out">
-            <i class="fas fa-power-off"></i>
-        </button>
-    </div>
+        <nav style="flex-grow: 1;">
+            <p style="font-size: 11px; text-transform: uppercase; opacity: 0.5; letter-spacing: 1px; margin-bottom: 20px;">Main Menu</p>
+            <div style="color: #94a3b8; font-size: 14px; display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px; color: white;"><i class="fas fa-th-large"></i> Dashboard</div>
+                <div style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-file-alt"></i> Reports</div>
+                <div style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-user-shield"></i> Admin</div>
+            </div>
+        </nav>
+        <div style="font-size: 12px; opacity: 0.3;">v2.1.0 Build 2024</div>
+    </aside>
 
-    <div id="access-denied" style="display: none;">
-        <i class="fas fa-circle-xmark" style="font-size: 50px; color: var(--accent); margin-bottom: 15px;"></i>
-        <h3>Access Denied</h3>
-        <p>This account is not authorized:</p>
-        <div class="denied-email" id="denied-email"></div>
-        <button id="logout-btn" style="width:auto; padding: 0 20px; margin: 10px auto;" onclick="backToLogin()">Try Another Account</button>
-    </div>
-
-    <div class="main-content" id="main-content" style="display:none; width: 100%;">
-        <div class="action-grid">
+    <main class="main-stage">
+        <header class="header-bar">
+            <div>
+                <h1 style="margin: 0; font-size: 24px;">Systems Overview</h1>
+                <p style="margin: 5px 0 0; color: var(--text-muted);">Manage your bowling centers and resources</p>
+            </div>
             
-            <div class="action-card" id="manuals-btn">
-                <a href="https://smart-bowling.github.io/MANUALS-SMART/" target="_blank" class="action-btn">
-                    <i class="fas fa-book-open-reader"></i>
-                    <span>Manuals</span>
-                </a>
+            <div class="profile-card">
+                <img id="user-pic" src="" alt="">
+                <div class="info">
+                    <div class="name" id="user-name">Username</div>
+                </div>
+                <button class="logout-mini" onclick="signOut()"><i class="fas fa-power-off"></i></button>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <a href="https://smart-bowling.github.io/MANUALS-SMART/" target="_blank" style="text-decoration: none; color: inherit;">
+                <div class="card" id="manuals-btn">
+                    <div class="card-icon"><i class="fas fa-book-open"></i></div>
+                    <div>
+                        <h3 class="card-title">Manuals</h3>
+                        <p class="card-desc">Documentation and guides for all systems</p>
+                    </div>
+                </div>
+            </a>
+
+            <a href="https://smart-bowling.github.io/PARTS-STORE/" target="_blank" style="text-decoration: none; color: inherit;">
+                <div class="card" id="store-btn">
+                    <div class="card-icon"><i class="fas fa-shopping-cart"></i></div>
+                    <div>
+                        <h3 class="card-title">Parts Store</h3>
+                        <p class="card-desc">Order replacement parts and hardware</p>
+                    </div>
+                </div>
+            </a>
+
+            <div class="card" id="card-parts">
+                <div class="card-icon"><i class="fas fa-gears"></i></div>
+                <div>
+                    <h3 class="card-title">Parts Catalog</h3>
+                    <p class="card-desc">Select center for inventory</p>
+                </div>
+                <div class="drop-menu" id="drop-parts"></div>
             </div>
 
-            <div class="action-card" id="store-btn">
-                <a href="https://smart-bowling.github.io/PARTS-STORE/" target="_blank" class="action-btn">
-                    <i class="fas fa-basket-shopping"></i>
-                    <span>Store</span>
-                </a>
+            <div class="card" id="card-maintenance">
+                <div class="card-icon"><i class="fas fa-screwdriver-wrench"></i></div>
+                <div>
+                    <h3 class="card-title">Maintenance</h3>
+                    <p class="card-desc">Service logs and scheduling</p>
+                </div>
+                <div class="drop-menu" id="drop-maintenance"></div>
             </div>
 
-            <div class="action-card has-dropdown" id="card-parts">
-                <button class="action-btn" onclick="handleAction('parts')">
-                    <i class="fas fa-gears"></i>
-                    <span>Parts</span>
-                </button>
-                <div class="action-dropdown" id="drop-parts"></div>
+            <div class="card" id="card-fps">
+                <div class="card-icon"><i class="fas fa-gauge-high"></i></div>
+                <div>
+                    <h3 class="card-title">FPS Monitor</h3>
+                    <p class="card-desc">Real-time performance metrics</p>
+                </div>
+                <div class="drop-menu" id="drop-fps"></div>
             </div>
 
-            <div class="action-card has-dropdown" id="card-maintenance">
-                <button class="action-btn" onclick="handleAction('maintenance')">
-                    <i class="fas fa-screwdriver-wrench"></i>
-                    <span>Service</span>
-                </button>
-                <div class="action-dropdown" id="drop-maintenance"></div>
+            <div class="card" id="card-analysis">
+                <div class="card-icon"><i class="fas fa-chart-pie"></i></div>
+                <div>
+                    <h3 class="card-title">Analytics</h3>
+                    <p class="card-desc">Deep data and bowling stats</p>
+                </div>
+                <div class="drop-menu" id="drop-analysis"></div>
             </div>
-
-            <div class="action-card has-dropdown" id="card-fps">
-                <button class="action-btn" onclick="handleAction('fps')">
-                    <i class="fas fa-gauge-high"></i>
-                    <span>FPS Data</span>
-                </button>
-                <div class="action-dropdown" id="drop-fps"></div>
-            </div>
-
-            <div class="action-card has-dropdown" id="card-analysis">
-                <button class="action-btn" onclick="handleAction('analysis')">
-                    <i class="fas fa-chart-pie"></i>
-                    <span>Analysis</span>
-                </button>
-                <div class="action-dropdown" id="drop-analysis"></div>
-            </div>
-
         </div>
-    </div>
+    </main>
 </div>
 
 <script>
+// (Логика скрипта остается прежней, добавляем только отображение списков сразу)
 const userPermissions = {
     'vadiksss900@gmail.com': {
         manuals: true, store: true,
@@ -366,55 +356,45 @@ const linksMap = {
 function handleCredentialResponse(response) {
     const payload = parseJwt(response.credential);
     const email = payload.email.toLowerCase();
-    if (userPermissions[email]) loginUser(payload); else showDenied(email);
+    if (userPermissions[email]) loginUser(payload); else alert("Access Denied: " + email);
 }
 
 function loginUser(payload) {
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('user-info').style.display = 'flex';
-    document.getElementById('main-content').style.display = 'block';
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
     document.getElementById('user-pic').src = payload.picture;
     document.getElementById('user-name').textContent = payload.name;
-    document.getElementById('user-email').textContent = payload.email;
+    
     localStorage.setItem('userLoggedIn', 'true');
     localStorage.setItem('userEmail', payload.email.toLowerCase());
     localStorage.setItem('userName', payload.name);
     localStorage.setItem('userPic', payload.picture);
-    applyPermissions(payload.email.toLowerCase());
+    
+    renderMenus(payload.email.toLowerCase());
 }
 
-function handleAction(type) {
-    const email = localStorage.getItem('userEmail');
+function renderMenus(email) {
     const p = userPermissions[email];
-    const available = linksMap[type].filter(item => p[item.key] && p[item.key][type]);
-    if (available.length === 0) return;
     
-    if (available.length === 1) {
-        window.open(available[0].url, '_blank');
-    } else {
-        const drop = document.getElementById(`drop-${type}`);
-        const isActive = drop.classList.contains('active');
-        document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
-        if (!isActive) {
-            drop.innerHTML = available.map(link => 
-                `<a href="${link.url}" target="_blank" class="action-link"><span>${link.name}</span></a>`
-            ).join('');
-            drop.classList.add('active');
-        }
-    }
-}
+    // Manuals/Store simple toggle
+    document.getElementById('manuals-btn').parentElement.classList.toggle('disabled', !p.manuals);
+    document.getElementById('store-btn').parentElement.classList.toggle('disabled', !p.store);
 
-function applyPermissions(email) {
-    const p = userPermissions[email];
-    if (document.getElementById('manuals-btn')) 
-        document.getElementById('manuals-btn').classList.toggle('disabled', !p.manuals);
-    if (document.getElementById('store-btn')) 
-        document.getElementById('store-btn').classList.toggle('disabled', !p.store);
-    
+    // Dynamic Lists
     Object.keys(linksMap).forEach(type => {
-        const hasAccess = linksMap[type].some(item => p[item.key] && p[item.key][type]);
+        const available = linksMap[type].filter(item => p[item.key] && p[item.key][type]);
+        const container = document.getElementById(`drop-${type}`);
         const card = document.getElementById(`card-${type}`);
-        if (card) card.classList.toggle('disabled', !hasAccess);
+
+        if (available.length === 0) {
+            card.classList.add('disabled');
+        } else {
+            container.innerHTML = available.map(link => 
+                `<a href="${link.url}" target="_blank" class="drop-item">
+                    ${link.name} <i class="fas fa-chevron-right" style="font-size:10px; opacity:0.5"></i>
+                </a>`
+            ).join('');
+        }
     });
 }
 
@@ -423,12 +403,6 @@ function parseJwt(token) {
 }
 
 function signOut() { localStorage.clear(); location.reload(); }
-function showDenied(email) {
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('access-denied').style.display = 'block';
-    document.getElementById('denied-email').textContent = email;
-}
-function backToLogin() { location.reload(); }
 
 window.onload = () => {
     if (localStorage.getItem('userLoggedIn') === 'true') {
