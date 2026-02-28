@@ -93,7 +93,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: var(--transition);
         }
+
+        #logout-btn:hover { background: var(--accent); color: white; }
 
         /* ===== ACTION GRID ===== */
         .action-grid {
@@ -250,56 +253,103 @@
 </div>
 
 <script>
-// Твой JS код без изменений
 const userPermissions = {
     'vadiksss900@gmail.com': { manuals:true, store:true, luckyStrike:{parts:true,maintenance:true,fps:true}, blockbuster:{parts:true,maintenance:true,analysis:true,fps:true}, skymall:{parts:true,maintenance:true,analysis:true,fps:true} },
     'csportsua@gmail.com': { manuals:true, store:false, luckyStrike:{parts:false,maintenance:false,fps:false}, blockbuster:{parts:false,maintenance:false,analysis:false,fps:false}, skymall:{parts:true,maintenance:false,analysis:false,fps:false} }
 };
+
 const linksMap = {
     parts:[{name:'Lucky Strike KH',url:'https://smart-bowling.github.io/PARTS-KH/',key:'luckyStrike'},{name:'Blockbuster',url:'https://smart-bowling.github.io/PARTS-BB/',key:'blockbuster'},{name:'Skymall',url:'https://smart-bowling.github.io/PARTS-SKYMALL/',key:'skymall'}],
     maintenance:[{name:'Lucky Strike KH',url:'https://smart-bowling.github.io/SMB-LS-KH/',key:'luckyStrike'},{name:'Blockbuster',url:'https://smart-bowling.github.io/SMB-BB/',key:'blockbuster'},{name:'Skymall',url:'https://smart-bowling.github.io/SMB-SKYMALL/',key:'skymall'}],
     fps:[{name:'Lucky Strike KH',url:'https://smart-bowling.github.io/PS-STOP-KH/',key:'luckyStrike'},{name:'Blockbuster',url:'https://smart-bowling.github.io/PS-STOP-BB/',key:'blockbuster'},{name:'Skymall',url:'https://smart-bowling.github.io/PS-STOP-SKYMALL/',key:'skymall'}],
     analysis:[{name:'Blockbuster',url:'https://smart-bowling.github.io/ANALYSIS-BB/',key:'blockbuster'},{name:'Skymall',url:'https://smart-bowling.github.io/ANALYSIS-SM/',key:'skymall'}]
 };
-function handleCredentialResponse(r){const p=parseJwt(r.credential);const e=p.email.toLowerCase();if(userPermissions[e])loginUser(p);else alert('No access');}
-function loginUser(p){
-    document.getElementById('login').style.display='none';
-    document.getElementById('user-info').style.display='flex';
-    document.getElementById('main-content').style.display='block';
-    document.getElementById('user-pic').src=p.picture;
-    document.getElementById('user-name').textContent=p.name;
-    document.getElementById('user-email').textContent=p.email;
-    localStorage.setItem('userLoggedIn','true');
-    localStorage.setItem('userEmail',p.email.toLowerCase());
-    applyPermissions(p.email.toLowerCase());
+
+function handleCredentialResponse(response) {
+    const payload = parseJwt(response.credential);
+    const email = payload.email.toLowerCase();
+    if (userPermissions[email]) loginUser(payload); else alert('Access Denied');
 }
-function handleAction(t){
-    const e=localStorage.getItem('userEmail');
-    const p=userPermissions[e];
-    const av=linksMap[t].filter(i=>p[i.key]&&p[i.key][t]);
-    if(av.length===1){window.open(av[0].url,'_blank');}
-    else{
-        const d=document.getElementById(`drop-${t}`);
-        const active=d.classList.contains('active');
-        document.querySelectorAll('.action-dropdown').forEach(x=>x.classList.remove('active'));
-        if(!active){
-            d.innerHTML=av.map(l=>`<a href="${l.url}" target="_blank" class="action-link">${l.name} <i class="fas fa-chevron-right" style="font-size:10px;opacity:0.3"></i></a>`).join('');
-            d.classList.add('active');
+
+function loginUser(payload) {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('user-info').style.display = 'flex';
+    document.getElementById('main-content').style.display = 'block';
+    
+    // Обновляем UI
+    document.getElementById('user-pic').src = payload.picture;
+    document.getElementById('user-name').textContent = payload.name;
+    document.getElementById('user-email').textContent = payload.email;
+    
+    // Сохраняем в память браузера
+    localStorage.setItem('userLoggedIn', 'true');
+    localStorage.setItem('userEmail', payload.email.toLowerCase());
+    localStorage.setItem('userName', payload.name);
+    localStorage.setItem('userPic', payload.picture);
+    
+    applyPermissions(payload.email.toLowerCase());
+}
+
+function handleAction(type) {
+    const email = localStorage.getItem('userEmail');
+    const p = userPermissions[email];
+    const available = linksMap[type].filter(item => p[item.key] && p[item.key][type]);
+    if (available.length === 1) {
+        window.open(available[0].url, '_blank');
+    } else if (available.length > 1) {
+        const drop = document.getElementById(`drop-${type}`);
+        const isActive = drop.classList.contains('active');
+        document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
+        if (!isActive) {
+            drop.innerHTML = available.map(link => 
+                `<a href="${link.url}" target="_blank" class="action-link">${link.name} <i class="fas fa-chevron-right" style="font-size:10px; opacity:0.3"></i></a>`
+            ).join('');
+            drop.classList.add('active');
         }
     }
 }
-function applyPermissions(e){
-    const p=userPermissions[e];
-    document.getElementById('manuals-btn').classList.toggle('disabled',!p.manuals);
-    document.getElementById('store-btn').classList.toggle('disabled',!p.store);
-    Object.keys(linksMap).forEach(t=>{
-        const has=linksMap[t].some(i=>p[i.key]&&p[i.key][t]);
-        document.getElementById(`card-${t}`).classList.toggle('disabled',!has);
+
+function applyPermissions(email) {
+    const p = userPermissions[email];
+    document.getElementById('manuals-btn').classList.toggle('disabled', !p.manuals);
+    document.getElementById('store-btn').classList.toggle('disabled', !p.store);
+    Object.keys(linksMap).forEach(type => {
+        const hasAccess = linksMap[type].some(item => p[item.key] && p[item.key][type]);
+        document.getElementById(`card-${type}`).classList.toggle('disabled', !hasAccess);
     });
 }
-function parseJwt(t){return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));}
-function signOut(){localStorage.clear();location.reload();}
-window.onload=()=>{if(localStorage.getItem('userLoggedIn')==='true'){applyPermissions(localStorage.getItem('userEmail'));document.getElementById('login').style.display='none';document.getElementById('main-content').style.display='block';document.getElementById('user-info').style.display='flex';document.getElementById('user-name').textContent='Welcome Back';}}
+
+function parseJwt(token) {
+    return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+}
+
+function signOut() { 
+    localStorage.clear(); 
+    location.reload(); 
+}
+
+window.onload = () => {
+    if (localStorage.getItem('userLoggedIn') === 'true') {
+        const email = localStorage.getItem('userEmail');
+        const name = localStorage.getItem('userName');
+        const pic = localStorage.getItem('userPic');
+        
+        if (userPermissions[email]) {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('user-info').style.display = 'flex';
+            
+            // Восстанавливаем данные из localStorage
+            document.getElementById('user-name').textContent = name || 'User';
+            document.getElementById('user-email').textContent = email;
+            if (pic) document.getElementById('user-pic').src = pic;
+            
+            applyPermissions(email);
+        } else {
+            signOut();
+        }
+    }
+}
 </script>
 </body>
 </html>
