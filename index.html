@@ -95,77 +95,12 @@
 
         #logout-btn:hover { background: var(--accent); color: white; }
 
-        /* ===== TOP NAV BUTTONS — теперь как карточки ===== */
-        .top-buttons {
-            display: flex;
-            gap: 20px;
-            width: 100%;
-        }
-
-        .top-card {
-            flex: 1;
-            background: var(--white);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
-            transition: var(--transition);
-            border: 1px solid rgba(0,0,0,0.02);
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            aspect-ratio: 1 / 1;
-        }
-
-        .top-card:hover:not(.disabled) {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
-        }
-
-        .top-card .action-btn {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 12px;
-            transition: var(--transition);
-            text-decoration: none;
-            color: inherit;
-            font-family: inherit;
-        }
-
-        .top-card .action-btn i {
-            font-size: 32px;
-            color: var(--text-muted);
-            transition: var(--transition);
-        }
-
-        .top-card .action-btn span {
-            font-weight: 800;
-            font-size: 14px;
-            letter-spacing: 0.5px;
-            color: var(--primary);
-            text-align: center;
-            line-height: 1.2;
-        }
-
-        .top-card:hover:not(.disabled) .action-btn i {
-            color: var(--accent);
-        }
-
-        /* ===== ACTION GRID (всегда 2 колонки) ===== */
+        /* ===== ACTION GRID (3 в ряд на ПК, 2 на моб) ===== */
         .action-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr); /* По умолчанию 3 колонки */
             gap: 20px;
             width: 100%;
-            margin-top: 20px;
         }
 
         .action-card {
@@ -179,7 +114,6 @@
             flex-direction: column;
         }
 
-        /* Квадратная кнопка с соотношением 1:1 */
         .action-btn {
             width: 100%;
             aspect-ratio: 1 / 1;
@@ -190,9 +124,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            padding: 12px;
+            gap: 12px;
+            padding: 15px;
             transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+            font-family: inherit;
         }
 
         .action-btn i {
@@ -203,7 +140,7 @@
 
         .action-btn span {
             font-weight: 800;
-            font-size: 14px;
+            font-size: 13px;
             letter-spacing: 0.5px;
             color: var(--primary);
             text-align: center;
@@ -269,26 +206,29 @@
         #access-denied h3 { color: var(--accent); }
         .denied-email { background: #fff1f2; color: var(--accent); padding: 10px; border-radius: 10px; margin: 15px 0; font-family: monospace; }
 
-        /* --- АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ --- */
-        @media (max-width: 480px) {
-            .action-grid, .top-buttons {
+        /* --- АДАПТАЦИЯ --- */
+        @media (max-width: 768px) {
+            .action-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 в ряд на планшетах */
                 gap: 15px;
-            }
-            .action-btn, .top-card .action-btn {
-                padding: 8px;
-            }
-            .action-btn i, .top-card .action-btn i {
-                font-size: 28px;
-            }
-            .action-btn span, .top-card .action-btn span {
-                font-size: 12px;
             }
         }
 
-        /* Если экран совсем узкий, можно переключить основные кнопки в 1 колонку */
-        @media (max-width: 360px) {
+        @media (max-width: 480px) {
+            .action-btn {
+                padding: 10px;
+            }
+            .action-btn i {
+                font-size: 28px;
+            }
+            .action-btn span {
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 350px) {
             .action-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr; /* 1 в ряд на совсем маленьких экранах */
             }
         }
     </style>
@@ -328,24 +268,23 @@
     </div>
 
     <div class="main-content" id="main-content" style="display:none; width: 100%;">
-        <!-- Две квадратные карточки в ряд: Manuals и Store -->
-        <div class="top-buttons">
-            <a href="https://smart-bowling.github.io/MANUALS-SMART/" class="top-card" id="manuals-btn" target="_blank">
-                <div class="action-btn">
+        
+        <div class="action-grid">
+            
+            <div class="action-card" id="manuals-btn">
+                <a href="https://smart-bowling.github.io/MANUALS-SMART/" target="_blank" class="action-btn">
                     <i class="fas fa-book"></i>
                     <span>MANUALS</span>
-                </div>
-            </a>
-            <a href="https://smart-bowling.github.io/PARTS-STORE/" class="top-card" id="store-btn" target="_blank">
-                <div class="action-btn">
+                </a>
+            </div>
+
+            <div class="action-card" id="store-btn">
+                <a href="https://smart-bowling.github.io/PARTS-STORE/" target="_blank" class="action-btn">
                     <i class="fas fa-shopping-cart"></i>
                     <span>STORE</span>
-                </div>
-            </a>
-        </div>
+                </a>
+            </div>
 
-        <!-- Сетка 2x2 для основных разделов -->
-        <div class="action-grid">
             <div class="action-card" id="card-parts">
                 <button class="action-btn" onclick="handleAction('parts')">
                     <i class="fas fa-cog"></i>
@@ -377,12 +316,12 @@
                 </button>
                 <div class="action-dropdown" id="drop-analysis"></div>
             </div>
+
         </div>
     </div>
 </div>
 
 <script>
-// --- CONFIGURATION ---
 const userPermissions = {
     'vadiksss900@gmail.com': {
         manuals: true, store: true,
@@ -420,54 +359,37 @@ const linksMap = {
     ]
 };
 
-// --- AUTH LOGIC ---
 function handleCredentialResponse(response) {
     const payload = parseJwt(response.credential);
     const email = payload.email.toLowerCase();
-    
-    if (userPermissions[email]) {
-        loginUser(payload);
-    } else {
-        showDenied(email);
-    }
+    if (userPermissions[email]) loginUser(payload); else showDenied(email);
 }
 
 function loginUser(payload) {
     document.getElementById('login').style.display = 'none';
     document.getElementById('user-info').style.display = 'flex';
     document.getElementById('main-content').style.display = 'block';
-    
     document.getElementById('user-pic').src = payload.picture;
     document.getElementById('user-name').textContent = payload.name;
     document.getElementById('user-email').textContent = payload.email;
-
     localStorage.setItem('userLoggedIn', 'true');
     localStorage.setItem('userEmail', payload.email.toLowerCase());
     localStorage.setItem('userName', payload.name);
     localStorage.setItem('userPic', payload.picture);
-
     applyPermissions(payload.email.toLowerCase());
 }
 
-// --- CORE LOGIC ---
 function handleAction(type) {
     const email = localStorage.getItem('userEmail');
     const p = userPermissions[email];
-    
-    // Фильтруем ссылки, к которым есть доступ
     const available = linksMap[type].filter(item => p[item.key] && p[item.key][type]);
-
     if (available.length === 0) return;
-
     if (available.length === 1) {
         window.open(available[0].url, '_blank');
     } else {
         const drop = document.getElementById(`drop-${type}`);
         const isActive = drop.classList.contains('active');
-        
-        // Закрываем все остальные
         document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
-        
         if (!isActive) {
             drop.innerHTML = available.map(link => 
                 `<a href="${link.url}" target="_blank" class="action-link">${link.name}</a>`
@@ -479,34 +401,24 @@ function handleAction(type) {
 
 function applyPermissions(email) {
     const p = userPermissions[email];
-    
-    // Top cards (Manuals & Store)
     document.getElementById('manuals-btn').classList.toggle('disabled', !p.manuals);
     document.getElementById('store-btn').classList.toggle('disabled', !p.store);
-
-    // Cards
     Object.keys(linksMap).forEach(type => {
         const hasAccess = linksMap[type].some(item => p[item.key] && p[item.key][type]);
         document.getElementById(`card-${type}`).classList.toggle('disabled', !hasAccess);
     });
 }
 
-// --- UTILS ---
 function parseJwt(token) {
     return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
 }
 
-function signOut() {
-    localStorage.clear();
-    location.reload();
-}
-
+function signOut() { localStorage.clear(); location.reload(); }
 function showDenied(email) {
     document.getElementById('login').style.display = 'none';
     document.getElementById('access-denied').style.display = 'block';
     document.getElementById('denied-email').textContent = email;
 }
-
 function backToLogin() { location.reload(); }
 
 window.onload = () => {
