@@ -2,320 +2,310 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMB | Pro Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>SMB | Intelligent Dashboard</title>
 
-    <link rel="icon" type="image/png" href="https://i.postimg.cc/QNkbRTbS/1.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://i.postimg.cc/QNkbRTbS/1.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
         :root {
-            --primary: #0f172a;
-            --accent: #ef4444;
-            --accent-hover: #dc2626;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --radius-lg: 16px;
-            --radius-md: 12px;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --primary: #6366f1;
+            --accent: #f43f5e;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             margin: 0;
-            background-color: var(--bg);
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            color: var(--text-main);
-            display: flex;
             min-height: 100vh;
-        }
-
-        /* ===== LAYOUT ===== */
-        .app-container {
+            background: radial-gradient(circle at top left, #1e293b, #0f172a);
+            color: var(--text-main);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             display: flex;
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 280px;
-            background: var(--primary);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            padding: 24px;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            transition: 0.3s;
-        }
-
-        .logo-area {
-            display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 12px;
-            padding-bottom: 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 20px;
+            padding: 20px;
         }
 
-        .logo-area img { width: 35px; height: 35px; }
-        .logo-area span { font-weight: 800; font-size: 20px; letter-spacing: 1px; }
-
-        /* ===== MAIN CONTENT ===== */
-        .main-stage {
-            flex-grow: 1;
-            padding: 40px;
-            overflow-y: auto;
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            display: none; /* Покажет JS после логина */
+            animation: slideUp 0.6s ease-out;
         }
 
-        .header-bar {
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Header / User Info --- */
+        header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            background: var(--card-bg);
+            padding: 12px 24px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
         }
 
-        /* ===== USER PROFILE BLOCK ===== */
-        .profile-card {
-            background: var(--card-bg);
-            padding: 8px 16px;
-            border-radius: 100px;
+        .user-profile {
             display: flex;
             align-items: center;
-            gap: 12px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
+            gap: 15px;
         }
 
-        .profile-card img { width: 32px; height: 32px; border-radius: 50%; }
-        .profile-card .info { line-height: 1.2; }
-        .profile-card .name { font-size: 14px; font-weight: 600; }
-        .logout-mini { 
-            background: none; border: none; color: var(--text-muted); 
-            cursor: pointer; padding: 5px; transition: 0.2s;
+        .user-profile img {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 2px solid var(--primary);
         }
-        .logout-mini:hover { color: var(--accent); }
 
-        /* ===== GRID SYSTEM ===== */
-        .dashboard-grid {
+        .user-info-text h4 { margin: 0; font-size: 15px; letter-spacing: 0.3px; }
+        .user-info-text p { margin: 0; font-size: 12px; color: var(--text-dim); }
+
+        .btn-logout {
+            background: rgba(244, 63, 94, 0.1);
+            color: var(--accent);
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-logout:hover { background: var(--accent); color: white; }
+
+        /* --- Grid System --- */
+        .action-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
+            gap: 20px;
         }
 
         .card {
             background: var(--card-bg);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: var(--transition);
             position: relative;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+            backdrop-filter: blur(5px);
         }
 
         .card:hover:not(.disabled) {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-            border-color: var(--accent);
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
-        .card-icon {
-            width: 50px;
-            height: 50px;
-            background: #f1f5f9;
-            border-radius: var(--radius-md);
+        .card-content {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .icon-box {
+            width: 56px;
+            height: 56px;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            color: var(--primary);
-            transition: 0.3s;
+            border-radius: 16px;
+            font-size: 24px;
+            transition: var(--transition);
         }
 
-        .card:hover .card-icon {
-            background: var(--accent);
+        .card:hover .icon-box {
+            background: var(--primary);
             color: white;
+            transform: scale(1.1) rotate(-5deg);
         }
 
         .card-title { font-weight: 700; font-size: 18px; margin: 0; }
-        .card-desc { color: var(--text-muted); font-size: 13px; margin: 0; }
+        .card-desc { font-size: 13px; color: var(--text-dim); margin: 0; line-height: 1.4; }
 
-        /* ===== DROP LINKS ===== */
-        .drop-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 10px;
+        /* --- Dropdown Menu --- */
+        .dropdown-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            background: rgba(15, 23, 42, 0.5);
         }
 
-        .drop-item {
+        .card.active .dropdown-menu {
+            max-height: 500px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .dropdown-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 14px;
-            background: #f8fafc;
-            border-radius: 8px;
+            padding: 15px 30px;
             text-decoration: none;
             color: var(--text-main);
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 500;
             transition: 0.2s;
         }
 
-        .drop-item:hover { background: var(--primary); color: white; }
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--primary);
+            padding-left: 35px;
+        }
 
-        /* ===== AUTH PAGE ===== */
+        /* --- Auth Screens --- */
         .auth-screen {
-            position: fixed;
-            inset: 0;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .auth-box {
-            background: white;
+            background: var(--card-bg);
             padding: 40px;
-            border-radius: 24px;
+            border-radius: 32px;
+            border: 1px solid var(--glass-border);
             text-align: center;
-            width: 100%;
             max-width: 400px;
+            width: 100%;
+            backdrop-filter: blur(20px);
         }
 
-        /* ===== UTILS ===== */
-        .disabled { opacity: 0.5; filter: grayscale(1); pointer-events: none; }
-        .hidden { display: none !important; }
+        .disabled {
+            opacity: 0.3;
+            filter: grayscale(1);
+            pointer-events: none;
+        }
 
-        @media (max-width: 768px) {
-            .sidebar { display: none; }
-            .main-stage { padding: 20px; }
-            .header-bar { flex-direction: column; gap: 20px; align-items: flex-start; }
+        /* --- Mobile --- */
+        @media (max-width: 640px) {
+            .action-grid { grid-template-columns: 1fr; }
+            header { flex-direction: column; gap: 15px; text-align: center; }
+            .user-profile { flex-direction: column; }
         }
     </style>
 </head>
 <body>
 
 <div id="login-screen" class="auth-screen">
-    <div class="auth-box">
-        <img src="https://i.postimg.cc/QNkbRTbS/1.png" alt="Logo" style="width: 60px; margin-bottom: 20px;">
-        <h2 style="margin-bottom: 10px;">Welcome Back</h2>
-        <p style="color: var(--text-muted); margin-bottom: 30px;">Please sign in to access SMB Dashboard</p>
-        <div id="g_id_onload"
-             data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com"
-             data-callback="handleCredentialResponse"
-             data-auto_prompt="false">
+    <div class="icon-box" style="margin: 0 auto 20px; width: 70px; height: 70px; font-size: 32px;">
+        <i class="fas fa-fingerprint"></i>
+    </div>
+    <h2 style="margin-bottom: 8px;">Access Portal</h2>
+    <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 30px;">Please sign in to continue to SMB Dashboard</p>
+    <div id="g_id_onload"
+         data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_black"></div>
+</div>
+
+<div id="access-denied" class="auth-screen" style="display: none;">
+    <i class="fas fa-circle-exclamation" style="font-size: 48px; color: var(--accent);"></i>
+    <h2 style="margin: 20px 0 10px;">Access Restricted</h2>
+    <p id="denied-email" style="font-family: monospace; color: var(--accent); background: rgba(244,63,94,0.1); padding: 8px; border-radius: 8px;"></p>
+    <p style="color: var(--text-dim); font-size: 14px; margin-top: 15px;">This account is not authorized.</p>
+    <button class="btn-logout" style="width: 100%; margin-top: 20px;" onclick="location.reload()">Try Another Account</button>
+</div>
+
+<div class="container" id="main-dashboard">
+    <header>
+        <div class="user-profile">
+            <img id="user-pic" src="" alt="Avatar">
+            <div class="user-info-text">
+                <h4 id="user-name">---</h4>
+                <p id="user-email">---</p>
+            </div>
         </div>
-        <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_black"></div>
+        <button class="btn-logout" onclick="signOut()" title="Sign Out">
+            <i class="fas fa-power-off"></i>
+        </button>
+    </header>
+
+    <div class="action-grid">
+        <div class="card" id="manuals-card">
+            <a href="https://smart-bowling.github.io/MANUALS-SMART/" target="_blank" class="card-content">
+                <div class="icon-box"><i class="fas fa-book-open"></i></div>
+                <div>
+                    <p class="card-title">Knowledge Base</p>
+                    <p class="card-desc">Technical manuals and operational guides for all equipment.</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="card" id="store-card">
+            <a href="https://smart-bowling.github.io/PARTS-STORE/" target="_blank" class="card-content">
+                <div class="icon-box"><i class="fas fa-cart-shopping"></i></div>
+                <div>
+                    <p class="card-title">Parts Store</p>
+                    <p class="card-desc">Order replacement parts and consumables directly.</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="card" id="card-parts">
+            <div class="card-content" onclick="toggleCard('card-parts')">
+                <div class="icon-box"><i class="fas fa-microchip"></i></div>
+                <div>
+                    <p class="card-title">Spare Parts</p>
+                    <p class="card-desc">Inventory and catalog by specific location.</p>
+                </div>
+            </div>
+            <div class="dropdown-menu" id="drop-parts"></div>
+        </div>
+
+        <div class="card" id="card-maintenance">
+            <div class="card-content" onclick="toggleCard('card-maintenance')">
+                <div class="icon-box"><i class="fas fa-screwdriver-wrench"></i></div>
+                <div>
+                    <p class="card-title">Maintenance</p>
+                    <p class="card-desc">Schedules, logs and routine check-up procedures.</p>
+                </div>
+            </div>
+            <div class="dropdown-menu" id="drop-maintenance"></div>
+        </div>
+
+        <div class="card" id="card-fps">
+            <div class="card-content" onclick="toggleCard('card-fps')">
+                <div class="icon-box"><i class="fas fa-gauge-high"></i></div>
+                <div>
+                    <p class="card-title">System Performance</p>
+                    <p class="card-desc">Real-time FPS tracking and hardware diagnostics.</p>
+                </div>
+            </div>
+            <div class="dropdown-menu" id="drop-fps"></div>
+        </div>
+
+        <div class="card" id="card-analysis">
+            <div class="card-content" onclick="toggleCard('card-analysis')">
+                <div class="icon-box"><i class="fas fa-chart-pie"></i></div>
+                <div>
+                    <p class="card-title">Analytics</p>
+                    <p class="card-desc">Deep dive into game statistics and usage patterns.</p>
+                </div>
+            </div>
+            <div class="dropdown-menu" id="drop-analysis"></div>
+        </div>
     </div>
 </div>
 
-<div id="app" class="app-container hidden">
-    <aside class="sidebar">
-        <div class="logo-area">
-            <img src="https://i.postimg.cc/QNkbRTbS/1.png" alt="SMB">
-            <span>SMB PRO</span>
-        </div>
-        <nav style="flex-grow: 1;">
-            <p style="font-size: 11px; text-transform: uppercase; opacity: 0.5; letter-spacing: 1px; margin-bottom: 20px;">Main Menu</p>
-            <div style="color: #94a3b8; font-size: 14px; display: flex; flex-direction: column; gap: 15px;">
-                <div style="display: flex; align-items: center; gap: 10px; color: white;"><i class="fas fa-th-large"></i> Dashboard</div>
-                <div style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-file-alt"></i> Reports</div>
-                <div style="display: flex; align-items: center; gap: 10px;"><i class="fas fa-user-shield"></i> Admin</div>
-            </div>
-        </nav>
-        <div style="font-size: 12px; opacity: 0.3;">v2.1.0 Build 2024</div>
-    </aside>
-
-    <main class="main-stage">
-        <header class="header-bar">
-            <div>
-                <h1 style="margin: 0; font-size: 24px;">Systems Overview</h1>
-                <p style="margin: 5px 0 0; color: var(--text-muted);">Manage your bowling centers and resources</p>
-            </div>
-            
-            <div class="profile-card">
-                <img id="user-pic" src="" alt="">
-                <div class="info">
-                    <div class="name" id="user-name">Username</div>
-                </div>
-                <button class="logout-mini" onclick="signOut()"><i class="fas fa-power-off"></i></button>
-            </div>
-        </header>
-
-        <div class="dashboard-grid">
-            <a href="https://smart-bowling.github.io/MANUALS-SMART/" target="_blank" style="text-decoration: none; color: inherit;">
-                <div class="card" id="manuals-btn">
-                    <div class="card-icon"><i class="fas fa-book-open"></i></div>
-                    <div>
-                        <h3 class="card-title">Manuals</h3>
-                        <p class="card-desc">Documentation and guides for all systems</p>
-                    </div>
-                </div>
-            </a>
-
-            <a href="https://smart-bowling.github.io/PARTS-STORE/" target="_blank" style="text-decoration: none; color: inherit;">
-                <div class="card" id="store-btn">
-                    <div class="card-icon"><i class="fas fa-shopping-cart"></i></div>
-                    <div>
-                        <h3 class="card-title">Parts Store</h3>
-                        <p class="card-desc">Order replacement parts and hardware</p>
-                    </div>
-                </div>
-            </a>
-
-            <div class="card" id="card-parts">
-                <div class="card-icon"><i class="fas fa-gears"></i></div>
-                <div>
-                    <h3 class="card-title">Parts Catalog</h3>
-                    <p class="card-desc">Select center for inventory</p>
-                </div>
-                <div class="drop-menu" id="drop-parts"></div>
-            </div>
-
-            <div class="card" id="card-maintenance">
-                <div class="card-icon"><i class="fas fa-screwdriver-wrench"></i></div>
-                <div>
-                    <h3 class="card-title">Maintenance</h3>
-                    <p class="card-desc">Service logs and scheduling</p>
-                </div>
-                <div class="drop-menu" id="drop-maintenance"></div>
-            </div>
-
-            <div class="card" id="card-fps">
-                <div class="card-icon"><i class="fas fa-gauge-high"></i></div>
-                <div>
-                    <h3 class="card-title">FPS Monitor</h3>
-                    <p class="card-desc">Real-time performance metrics</p>
-                </div>
-                <div class="drop-menu" id="drop-fps"></div>
-            </div>
-
-            <div class="card" id="card-analysis">
-                <div class="card-icon"><i class="fas fa-chart-pie"></i></div>
-                <div>
-                    <h3 class="card-title">Analytics</h3>
-                    <p class="card-desc">Deep data and bowling stats</p>
-                </div>
-                <div class="drop-menu" id="drop-analysis"></div>
-            </div>
-        </div>
-    </main>
-</div>
-
 <script>
-// (Логика скрипта остается прежней, добавляем только отображение списков сразу)
 const userPermissions = {
     'vadiksss900@gmail.com': {
         manuals: true, store: true,
@@ -354,55 +344,59 @@ const linksMap = {
 };
 
 function handleCredentialResponse(response) {
-    const payload = parseJwt(response.credential);
+    const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
     const email = payload.email.toLowerCase();
-    if (userPermissions[email]) loginUser(payload); else alert("Access Denied: " + email);
+    if (userPermissions[email]) loginUser(payload); else showDenied(email);
 }
 
 function loginUser(payload) {
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-dashboard').style.display = 'block';
     document.getElementById('user-pic').src = payload.picture;
     document.getElementById('user-name').textContent = payload.name;
+    document.getElementById('user-email').textContent = payload.email;
     
     localStorage.setItem('userLoggedIn', 'true');
     localStorage.setItem('userEmail', payload.email.toLowerCase());
     localStorage.setItem('userName', payload.name);
     localStorage.setItem('userPic', payload.picture);
     
-    renderMenus(payload.email.toLowerCase());
+    applyPermissions(payload.email.toLowerCase());
 }
 
-function renderMenus(email) {
+function applyPermissions(email) {
     const p = userPermissions[email];
-    
-    // Manuals/Store simple toggle
-    document.getElementById('manuals-btn').parentElement.classList.toggle('disabled', !p.manuals);
-    document.getElementById('store-btn').parentElement.classList.toggle('disabled', !p.store);
+    document.getElementById('manuals-card').classList.toggle('disabled', !p.manuals);
+    document.getElementById('store-card').classList.toggle('disabled', !p.store);
 
-    // Dynamic Lists
     Object.keys(linksMap).forEach(type => {
         const available = linksMap[type].filter(item => p[item.key] && p[item.key][type]);
-        const container = document.getElementById(`drop-${type}`);
         const card = document.getElementById(`card-${type}`);
-
+        const drop = document.getElementById(`drop-${type}`);
+        
         if (available.length === 0) {
             card.classList.add('disabled');
         } else {
-            container.innerHTML = available.map(link => 
-                `<a href="${link.url}" target="_blank" class="drop-item">
-                    ${link.name} <i class="fas fa-chevron-right" style="font-size:10px; opacity:0.5"></i>
-                </a>`
+            drop.innerHTML = available.map(link => 
+                `<a href="${link.url}" target="_blank" class="dropdown-item">${link.name} <i class="fas fa-chevron-right" style="font-size:10px; opacity:0.5"></i></a>`
             ).join('');
         }
     });
 }
 
-function parseJwt(token) {
-    return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+function toggleCard(id) {
+    const card = document.getElementById(id);
+    const isActive = card.classList.contains('active');
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+    if (!isActive) card.classList.add('active');
 }
 
 function signOut() { localStorage.clear(); location.reload(); }
+function showDenied(email) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('access-denied').style.display = 'block';
+    document.getElementById('denied-email').textContent = email;
+}
 
 window.onload = () => {
     if (localStorage.getItem('userLoggedIn') === 'true') {
