@@ -42,7 +42,7 @@
             align-items: center;
             gap: 25px;
             width: 100%;
-            max-width: 1200px; /* Увеличил максимальную ширину, чтобы трем карточкам было комфортно */
+            max-width: 900px;
             animation: fadeIn 0.8s ease;
         }
 
@@ -95,7 +95,7 @@
 
         #logout-btn:hover { background: var(--accent); color: white; }
 
-        /* ===== TOP NAV BUTTONS ===== */
+        /* ===== TOP NAV BUTTONS — теперь как карточки ===== */
         .top-buttons {
             display: flex;
             gap: 20px;
@@ -159,11 +159,10 @@
             color: var(--accent);
         }
 
-        /* ===== ACTION GRID ===== */
+        /* ===== ACTION GRID (всегда 2 колонки) ===== */
         .action-grid {
             display: grid;
-            /* По умолчанию для ПК (широкие экраны) - 3 колонки */
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             width: 100%;
             margin-top: 20px;
@@ -178,11 +177,6 @@
             border: 1px solid rgba(0,0,0,0.02);
             display: flex;
             flex-direction: column;
-            /* Ограничиваем максимальную ширину, чтобы карточки не были слишком большими */
-            max-width: 280px;
-            /* Центрируем карточку, если она одна в ряду на больших экранах */
-            justify-self: center;
-            width: 100%;
         }
 
         /* Квадратная кнопка с соотношением 1:1 */
@@ -275,25 +269,9 @@
         #access-denied h3 { color: var(--accent); }
         .denied-email { background: #fff1f2; color: var(--accent); padding: 10px; border-radius: 10px; margin: 15px 0; font-family: monospace; }
 
-        /* --- АДАПТАЦИЯ ДЛЯ ПЛАНШЕТОВ И ТЕЛЕФОНОВ --- */
-        /* Для экранов меньше 900px, чтобы три колонки не сжимались слишком сильно, делаем 2 колонки */
-        @media (max-width: 900px) {
-            .action-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .action-card {
-                max-width: 100%; /* Убираем ограничение, чтобы карточки занимали всю доступную ширину в 2 колонках */
-            }
-        }
-
-        /* Для телефонов (до 480px) оставляем 2 колонки, как и просили */
+        /* --- АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ --- */
         @media (max-width: 480px) {
-            .action-grid {
-                gap: 15px;
-                /* Сетка остается 2 колонки */
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .top-buttons {
+            .action-grid, .top-buttons {
                 gap: 15px;
             }
             .action-btn, .top-card .action-btn {
@@ -304,9 +282,6 @@
             }
             .action-btn span, .top-card .action-btn span {
                 font-size: 12px;
-            }
-            .action-card {
-                max-width: 100%; /* На телефонах карточки занимают всю доступную ширину */
             }
         }
 
@@ -369,7 +344,7 @@
             </a>
         </div>
 
-        <!-- Сетка теперь 3 колонки на ПК, 2 на телефонах -->
+        <!-- Сетка 2x2 для основных разделов -->
         <div class="action-grid">
             <div class="action-card" id="card-parts">
                 <button class="action-btn" onclick="handleAction('parts')">
