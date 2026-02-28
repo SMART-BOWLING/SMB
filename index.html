@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SMB | Dashboard</title>
 
 <link rel="icon" type="image/png" sizes="192x192" href="https://i.postimg.cc/QNkbRTbS/1.png">
@@ -31,7 +31,7 @@ display:flex;
 justify-content:center;
 align-items:center;
 background:var(--bg);
-font-family:'Inter','Segoe UI',system-ui,sans-serif;
+font-family:'Segoe UI',system-ui,sans-serif;
 padding:20px;
 color:var(--text-dark);
 }
@@ -42,17 +42,10 @@ flex-direction:column;
 align-items:center;
 gap:25px;
 width:100%;
-max-width:900px;
-animation:fadeIn .6s ease;
+max-width:1000px;
 }
 
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(10px);}
-to{opacity:1;transform:translateY(0);}
-}
-
-/* AUTH */
-#login,#user-info,#access-denied{
+#login,#user-info{
 background:var(--white);
 padding:25px;
 border-radius:24px;
@@ -67,7 +60,6 @@ display:flex;
 align-items:center;
 gap:15px;
 text-align:left;
-padding:12px 20px;
 }
 
 #user-info img{
@@ -92,7 +84,6 @@ background:var(--accent);
 color:white;
 }
 
-/* CARDS */
 .top-buttons{
 display:flex;
 gap:20px;
@@ -103,12 +94,12 @@ width:100%;
 flex:1;
 background:var(--white);
 border-radius:20px;
-overflow:hidden;
 box-shadow:0 10px 25px rgba(0,0,0,.03);
 transition:var(--transition);
-display:flex;
-flex-direction:column;
 aspect-ratio:1/1;
+display:flex;
+align-items:center;
+justify-content:center;
 cursor:pointer;
 }
 
@@ -117,50 +108,24 @@ transform:translateY(-5px);
 box-shadow:0 15px 30px rgba(0,0,0,.08);
 }
 
-.top-card .action-btn{
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-gap:10px;
-height:100%;
-border:none;
-background:transparent;
-cursor:pointer;
-}
-
 .top-card i{
 font-size:32px;
 color:var(--text-muted);
-transition:var(--transition);
 }
 
-.top-card span{
-font-weight:800;
-font-size:14px;
-}
-
-.top-card:hover i{
-color:var(--accent);
-}
-
-/* GRID */
 .action-grid{
 display:grid;
 grid-template-columns:repeat(2,1fr);
 gap:20px;
 width:100%;
-margin-top:20px;
 }
 
 .action-card{
 background:var(--white);
 border-radius:20px;
-overflow:hidden;
 box-shadow:0 10px 25px rgba(0,0,0,.03);
 transition:var(--transition);
-display:flex;
-flex-direction:column;
+overflow:hidden;
 }
 
 .action-btn{
@@ -176,29 +141,50 @@ justify-content:center;
 gap:10px;
 }
 
+.action-btn i{
+font-size:28px;
+color:var(--text-muted);
+}
+
 .action-card:hover{
 transform:translateY(-5px);
 box-shadow:0 15px 30px rgba(0,0,0,.08);
 }
 
-.action-card i{
-font-size:32px;
-color:var(--text-muted);
-transition:var(--transition);
+.action-dropdown{
+max-height:0;
+overflow:hidden;
+transition:max-height .3s ease;
+background:#f8fafc;
+display:flex;
+flex-direction:column;
 }
 
-.action-card:hover i{
-color:var(--accent);
+.action-dropdown.active{
+max-height:400px;
 }
 
-/* IFRAME FULLSCREEN */
+.action-link{
+padding:12px 20px;
+text-decoration:none;
+color:var(--text-dark);
+font-size:14px;
+font-weight:600;
+border-bottom:1px solid #eee;
+cursor:pointer;
+}
+
+.action-link:hover{
+background:var(--primary);
+color:white;
+}
+
 .iframe-overlay{
 position:fixed;
 inset:0;
-background:var(--bg);
+background:rgba(0,0,0,.4);
 z-index:9999;
 display:flex;
-flex-direction:column;
 opacity:0;
 pointer-events:none;
 transition:opacity .3s ease;
@@ -209,41 +195,15 @@ opacity:1;
 pointer-events:all;
 }
 
-.iframe-topbar{
-height:60px;
-background:var(--white);
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 20px;
-box-shadow:0 5px 20px rgba(0,0,0,.05);
-}
-
-.iframe-close{
-background:var(--primary);
-color:white;
-border:none;
-padding:8px 16px;
-border-radius:12px;
-cursor:pointer;
-transition:var(--transition);
-font-weight:600;
-}
-
-.iframe-close:hover{
-background:var(--accent);
-}
-
 .iframe-container{
 flex:1;
-overflow:hidden;
+background:white;
 }
 
 .iframe-container iframe{
 width:100%;
 height:100%;
 border:none;
-background:white;
 }
 </style>
 </head>
@@ -275,51 +235,92 @@ data-auto_prompt="false"></div>
 <div class="main-content" id="main-content" style="display:none;width:100%;">
 
 <div class="top-buttons">
-<div class="top-card" onclick="openIframe('https://smart-bowling.github.io/MANUALS-SMART/','MANUALS')">
-<button class="action-btn">
+<div class="top-card" onclick="openIframe('https://smart-bowling.github.io/MANUALS-SMART/')">
 <i class="fas fa-book"></i>
-<span>MANUALS</span>
-</button>
 </div>
 
-<div class="top-card" onclick="openIframe('https://smart-bowling.github.io/PARTS-STORE/','STORE')">
-<button class="action-btn">
+<div class="top-card" onclick="openIframe('https://smart-bowling.github.io/PARTS-STORE/')">
 <i class="fas fa-shopping-cart"></i>
-<span>STORE</span>
+</div>
+</div>
+
+<div class="action-grid">
+
+<div class="action-card">
+<button class="action-btn" onclick="toggleDrop('parts')">
+<i class="fas fa-cog"></i>
+<span>PARTS</span>
 </button>
+<div class="action-dropdown" id="drop-parts">
+<div class="action-link" onclick="openIframe('https://smart-bowling.github.io/PARTS-KH/')">Lucky Strike KH</div>
+<div class="action-link" onclick="openIframe('https://smart-bowling.github.io/PARTS-BB/')">Blockbuster</div>
+<div class="action-link" onclick="openIframe('https://smart-bowling.github.io/PARTS-SKYMALL/')">Skymall</div>
+</div>
+</div>
+
+<div class="action-card">
+<button class="action-btn" onclick="toggleDrop('maintenance')">
+<i class="fas fa-tools"></i>
+<span>MAINTENANCE</span>
+</button>
+<div class="action-dropdown" id="drop-maintenance">
+<div class="action-link" onclick="openIframe('https://smart-bowling.github.io/SMB-LS-KH/')">Lucky Strike KH</div>
+<div class="action-link" onclick="openIframe('https://smart-bowling.github.io/SMB-BB/')">Blockbuster</div>
+<div class="action-link" onclick="openIframe('https://smart-bowling.github.io/SMB-SKYMALL/')">Skymall</div>
+</div>
+</div>
+
+<div class="action-card">
+<button class="action-btn" onclick="toggleDrop('fps')">
+<i class="fas fa-chart-line"></i>
+<span>FPS</span>
+</button>
+<div class="action-dropdown" id="drop-fps">
+<div class="action-link" onclick="openIframe('https://smart-bowling.github.io/PS-STOP-KH/')">Lucky Strike KH</div>
+<div class="action-link" onclick="openIframe('https://smart-bowling.github.io/PS-STOP-BB/')">Blockbuster</div>
+<div class="action-link" onclick="openIframe('https://smart-bowling.github.io/PS-STOP-SKYMALL/')">Skymall</div>
+</div>
+</div>
+
+<div class="action-card">
+<button class="action-btn" onclick="toggleDrop('analysis')">
+<i class="fas fa-bowling-ball"></i>
+<span>ANALYSIS</span>
+</button>
+<div class="action-dropdown" id="drop-analysis">
+<div class="action-link" onclick="openIframe('https://smart-bowling.github.io/ANALYSIS-BB/')">Blockbuster</div>
+<div class="action-link" onclick="openIframe('https://smart-bowling.github.io/ANALYSIS-SM/')">Skymall</div>
 </div>
 </div>
 
 </div>
 </div>
-
-<!-- FULLSCREEN IFRAME -->
-<div class="iframe-overlay" id="iframeOverlay">
-<div class="iframe-topbar">
-<div id="iframeTitle">Loading...</div>
-<button class="iframe-close" onclick="closeIframe()">Back</button>
 </div>
+
+<div class="iframe-overlay" id="iframeOverlay" onclick="closeIframe(event)">
 <div class="iframe-container">
 <iframe id="mainIframe"></iframe>
 </div>
 </div>
 
 <script>
-function openIframe(url,title){
-const overlay=document.getElementById('iframeOverlay');
-const frame=document.getElementById('mainIframe');
-document.getElementById('iframeTitle').textContent=title;
-frame.src=url;
-overlay.classList.add('active');
+function openIframe(url){
+document.getElementById('mainIframe').src=url;
+document.getElementById('iframeOverlay').classList.add('active');
 document.body.style.overflow='hidden';
 }
 
-function closeIframe(){
-const overlay=document.getElementById('iframeOverlay');
-const frame=document.getElementById('mainIframe');
-overlay.classList.remove('active');
-frame.src='';
+function closeIframe(e){
+if(e.target.id==='iframeOverlay'){
+document.getElementById('iframeOverlay').classList.remove('active');
+document.getElementById('mainIframe').src='';
 document.body.style.overflow='';
+}
+}
+
+function toggleDrop(id){
+document.querySelectorAll('.action-dropdown').forEach(d=>d.classList.remove('active'));
+document.getElementById('drop-'+id).classList.toggle('active');
 }
 
 function handleCredentialResponse(response){
