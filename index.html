@@ -45,12 +45,6 @@
             gap: 25px;
             width: 100%;
             max-width: 900px;
-            animation: fadeIn 0.8s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         /* ===== AUTH BLOCKS ===== */
@@ -196,7 +190,7 @@
             color: white;
         }
 
-        /* ===== FULLSCREEN IFRAME SYSTEM ===== */
+        /* ===== FULLSCREEN IFRAME SYSTEM (NO LOADER) ===== */
         #iframe-container {
             position: fixed;
             top: 0;
@@ -214,14 +208,6 @@
             height: 100%;
             border: none;
             outline: none;
-        }
-
-        .iframe-loader {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: -1;
         }
 
         /* ===== UTILS ===== */
@@ -324,9 +310,6 @@
 </div>
 
 <div id="iframe-container">
-    <div class="iframe-loader">
-        <i class="fas fa-circle-notch fa-spin" style="font-size: 40px; color: var(--accent);"></i>
-    </div>
     <iframe id="main-iframe" src=""></iframe>
 </div>
 
@@ -368,7 +351,7 @@ const linksMap = {
     ]
 };
 
-// --- IFRAME LOGIC ---
+// IFRAME NAVIGATION
 function openIframe(url) {
     const container = document.getElementById('iframe-container');
     const iframe = document.getElementById('main-iframe');
@@ -394,7 +377,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// --- AUTH & UI LOGIC ---
+// AUTH & UI
 function handleCredentialResponse(response) {
     const payload = parseJwt(response.credential);
     const email = payload.email.toLowerCase();
@@ -472,6 +455,5 @@ window.onload = () => {
     }
 }
 </script>
-
 </body>
 </html>
