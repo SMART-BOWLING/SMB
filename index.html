@@ -15,14 +15,17 @@
         :root {
             --primary: #1f2937;
             --accent: #dc143c;
-            --bg: #f0f2f5;
+            --accent-hover: #b91c1c;
+            --bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
             --white: #ffffff;
-            --text-dark: #1f2937;
-            --text-muted: #6b7280;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             margin: 0;
@@ -31,6 +34,7 @@
             justify-content: center;
             align-items: center;
             background: var(--bg);
+            background-attachment: fixed;
             font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
             padding: 20px;
             color: var(--text-dark);
@@ -40,83 +44,95 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 25px;
+            gap: 20px;
             width: 100%;
-            max-width: 900px;
-            animation: fadeIn 0.8s ease;
+            max-width: 850px;
+            animation: fadeIn 0.6s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ===== AUTH BLOCKS ===== */
+        /* ===== AUTH & USER INFO ===== */
         #login, #user-info, #access-denied {
-            background: var(--white);
-            padding: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
             border-radius: 24px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
-            text-align: center;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.6);
             width: 100%;
-            max-width: 400px;
         }
+
+        #login { max-width: 400px; text-align: center; padding: 40px 30px; }
+        #login i { font-size: 50px; color: var(--primary); margin-bottom: 20px; }
+        #login h2 { margin-bottom: 30px; font-weight: 800; letter-spacing: -0.5px; }
 
         #user-info {
             display: flex;
             flex-direction: row;
             align-items: center;
             gap: 15px;
-            text-align: left;
             padding: 12px 20px;
         }
 
         #user-info img {
             border-radius: 50%;
-            width: 45px;
-            height: 45px;
+            width: 48px;
+            height: 48px;
             border: 2px solid var(--accent);
+            box-shadow: 0 0 0 4px rgba(220, 20, 60, 0.1);
         }
 
-        #user-info .user-details { flex-grow: 1; }
-        #user-info p { margin: 0; font-size: 14px; font-weight: 600; }
+        #user-info .user-details { flex-grow: 1; overflow: hidden; }
+        #user-info p { margin: 0; font-size: 14px; font-weight: 700; color: var(--primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         #user-info #user-email { font-weight: 400; color: var(--text-muted); font-size: 12px; }
 
         #logout-btn {
             background: #f1f5f9;
             color: var(--text-dark);
             border: none;
-            width: 35px;
-            height: 35px;
-            border-radius: 10px;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
             cursor: pointer;
             transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        #logout-btn:hover { background: var(--accent); color: white; }
+        #logout-btn:hover { background: var(--accent); color: white; transform: rotate(8deg); }
 
-        /* ===== ACTION GRID (3 в ряд на ПК, 2 на моб) ===== */
+        /* ===== ACTION GRID ===== */
         .action-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* По умолчанию 3 колонки */
-            gap: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
             width: 100%;
         }
 
         .action-card {
             background: var(--white);
-            border-radius: 20px;
+            border-radius: 22px;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            box-shadow: var(--shadow-sm);
             transition: var(--transition);
-            border: 1px solid rgba(0,0,0,0.02);
-            display: flex;
-            flex-direction: column;
+            border: 1px solid rgba(0,0,0,0.03);
+            position: relative;
+        }
+
+        .action-card:hover:not(.disabled) {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
         }
 
         .action-btn {
             width: 100%;
-            aspect-ratio: 1 / 1;
+            aspect-ratio: 1 / 0.9;
             border: none;
             background: transparent;
             cursor: pointer;
@@ -126,110 +142,99 @@
             justify-content: center;
             gap: 12px;
             padding: 15px;
-            transition: var(--transition);
             text-decoration: none;
             color: inherit;
-            font-family: inherit;
         }
 
         .action-btn i {
-            font-size: 32px;
-            color: var(--text-muted);
+            font-size: 30px;
+            color: var(--primary);
             transition: var(--transition);
         }
 
+        .action-card:hover:not(.disabled) .action-btn i {
+            color: var(--accent);
+            transform: scale(1.1);
+        }
+
         .action-btn span {
-            font-weight: 800;
-            font-size: 13px;
-            letter-spacing: 0.5px;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
             color: var(--primary);
             text-align: center;
-            line-height: 1.2;
         }
 
-        .action-card:hover:not(.disabled) {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+        /* Индикатор наличия подменю */
+        .has-dropdown .action-btn::after {
+            content: '\f0d7';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-top: -4px;
         }
 
-        .action-card:hover:not(.disabled) .action-btn i { color: var(--accent); }
-
-        /* ===== DROPDOWN CONTENT ===== */
+        /* ===== DROPDOWN ===== */
         .action-dropdown {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             background: #f8fafc;
-            display: flex;
-            flex-direction: column;
         }
 
         .action-dropdown.active {
-            max-height: 300px;
-            border-top: 1px solid #edf2f7;
+            max-height: 350px;
+            border-top: 1px solid #f1f5f9;
+            padding: 8px 0;
         }
 
         .action-link {
-            padding: 14px 20px;
+            padding: 12px 18px;
             text-decoration: none;
             color: var(--text-dark);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
-            border-bottom: 1px solid #edf2f7;
-            transition: 0.2s;
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .action-link:after {
-            content: '\f105';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            opacity: 0.3;
+            transition: var(--transition);
+            margin: 4px 10px;
+            border-radius: 10px;
         }
 
         .action-link:hover {
             background: var(--primary);
             color: white;
-            padding-left: 25px;
+            padding-left: 22px;
         }
 
-        /* ===== UTILS ===== */
-        .disabled {
-            opacity: 0.4;
-            filter: grayscale(1);
-            pointer-events: none;
-            cursor: not-allowed;
+        .action-link::after {
+            content: '\f105';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            opacity: 0.5;
         }
 
-        #access-denied h3 { color: var(--accent); }
-        .denied-email { background: #fff1f2; color: var(--accent); padding: 10px; border-radius: 10px; margin: 15px 0; font-family: monospace; }
+        /* ===== UTILS & DENIED ===== */
+        .disabled { opacity: 0.35; filter: grayscale(1); pointer-events: none; }
+        
+        #access-denied { text-align: center; max-width: 400px; }
+        #access-denied h3 { color: var(--accent); margin-top: 0; }
+        .denied-email { background: #fee2e2; color: var(--accent); padding: 12px; border-radius: 12px; margin: 15px 0; font-family: monospace; font-size: 14px; }
 
-        /* --- АДАПТАЦИЯ --- */
+        /* --- RESPONSIVE --- */
         @media (max-width: 768px) {
-            .action-grid {
-                grid-template-columns: repeat(2, 1fr); /* 2 в ряд на планшетах */
-                gap: 15px;
-            }
+            .action-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .action-btn { aspect-ratio: 1 / 1; }
         }
 
-        @media (max-width: 480px) {
-            .action-btn {
-                padding: 10px;
-            }
-            .action-btn i {
-                font-size: 28px;
-            }
-            .action-btn span {
-                font-size: 11px;
-            }
-        }
-
-        @media (max-width: 350px) {
-            .action-grid {
-                grid-template-columns: 1fr; /* 1 в ряд на совсем маленьких экранах */
-            }
+        @media (max-width: 400px) {
+            .action-grid { grid-template-columns: 1fr; }
+            .action-btn { aspect-ratio: auto; padding: 25px; flex-direction: row; justify-content: flex-start; gap: 20px; }
+            .action-btn i { width: 30px; text-align: center; }
+            .has-dropdown .action-btn::after { margin-left: auto; }
         }
     </style>
 </head>
@@ -238,14 +243,14 @@
 <div class="container">
 
     <div id="login">
-        <i class="fas fa-shield-halved" style="font-size: 40px; color: var(--primary); margin-bottom: 15px;"></i>
-        <h2>SMB Login</h2>
+        <i class="fas fa-shield-halved"></i>
+        <h2>SMB Terminal</h2>
         <div id="g_id_onload"
              data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com"
              data-callback="handleCredentialResponse"
              data-auto_prompt="false">
         </div>
-        <div class="g_id_signin" data-type="standard" data-shape="pill"></div>
+        <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_black"></div>
     </div>
 
     <div id="user-info" style="display: none;">
@@ -255,64 +260,63 @@
             <p id="user-email"></p>
         </div>
         <button id="logout-btn" onclick="signOut()" title="Sign Out">
-            <i class="fas fa-sign-out-alt"></i>
+            <i class="fas fa-power-off"></i>
         </button>
     </div>
 
     <div id="access-denied" style="display: none;">
-        <i class="fas fa-ban" style="font-size: 40px; color: var(--accent); margin-bottom: 15px;"></i>
+        <i class="fas fa-circle-xmark" style="font-size: 50px; color: var(--accent); margin-bottom: 15px;"></i>
         <h3>Access Denied</h3>
-        <p>Your email is not registered:</p>
+        <p>This account is not authorized:</p>
         <div class="denied-email" id="denied-email"></div>
-        <button id="logout-btn" style="width:auto; padding: 10px 20px; margin: 0 auto;" onclick="backToLogin()">Go Back</button>
+        <button id="logout-btn" style="width:auto; padding: 0 20px; margin: 10px auto;" onclick="backToLogin()">Try Another Account</button>
     </div>
 
     <div class="main-content" id="main-content" style="display:none; width: 100%;">
-        
         <div class="action-grid">
             
             <div class="action-card" id="manuals-btn">
                 <a href="https://smart-bowling.github.io/MANUALS-SMART/" target="_blank" class="action-btn">
-                    <i class="fas fa-book"></i>
-                    <span>MANUALS</span>
+                    <i class="fas fa-book-open-reader"></i>
+                    <span>Manuals</span>
                 </a>
             </div>
 
             <div class="action-card" id="store-btn">
                 <a href="https://smart-bowling.github.io/PARTS-STORE/" target="_blank" class="action-btn">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>STORE</span>
+                    <i class="fas fa-basket-shopping"></i>
+                    <span>Store</span>
                 </a>
             </div>
 
-            <div class="action-card" id="card-parts">
+            <div class="action-card has-dropdown" id="card-parts">
                 <button class="action-btn" onclick="handleAction('parts')">
-                    <i class="fas fa-cog"></i>
-                    <span>PARTS</span>
+                    <i class="fas fa-gears"></i>
+                    <span>Parts</span>
                 </button>
                 <div class="action-dropdown" id="drop-parts"></div>
             </div>
 
-            <div class="action-card" id="card-maintenance">
+            <div class="action-card has-dropdown" id="card-maintenance">
                 <button class="action-btn" onclick="handleAction('maintenance')">
-                    <i class="fas fa-tools"></i>
-                    <span>MAINTENANCE</span>
+                    <i class="fas fa-screwdriver-wrench"></i>
+                    <span>Service</span>
                 </button>
                 <div class="action-dropdown" id="drop-maintenance"></div>
             </div>
 
-            <div class="action-card" id="card-fps">
+            <div class="action-card has-dropdown" id="card-fps">
                 <button class="action-btn" onclick="handleAction('fps')">
-                    <i class="fas fa-chart-line"></i>
-                    <span>FPS</span>
+                    <i class="fas fa-gauge-high"></i>
+                    <span>FPS Data</span>
                 </button>
                 <div class="action-dropdown" id="drop-fps"></div>
             </div>
 
-            <div class="action-card" id="card-analysis">
+            <div class="action-card has-dropdown" id="card-analysis">
                 <button class="action-btn" onclick="handleAction('analysis')">
-                    <i class="fas fa-bowling-ball"></i>
-                    <span>ANALYSIS</span>
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Analysis</span>
                 </button>
                 <div class="action-dropdown" id="drop-analysis"></div>
             </div>
@@ -384,6 +388,7 @@ function handleAction(type) {
     const p = userPermissions[email];
     const available = linksMap[type].filter(item => p[item.key] && p[item.key][type]);
     if (available.length === 0) return;
+    
     if (available.length === 1) {
         window.open(available[0].url, '_blank');
     } else {
@@ -392,7 +397,7 @@ function handleAction(type) {
         document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
         if (!isActive) {
             drop.innerHTML = available.map(link => 
-                `<a href="${link.url}" target="_blank" class="action-link">${link.name}</a>`
+                `<a href="${link.url}" target="_blank" class="action-link"><span>${link.name}</span></a>`
             ).join('');
             drop.classList.add('active');
         }
@@ -401,11 +406,15 @@ function handleAction(type) {
 
 function applyPermissions(email) {
     const p = userPermissions[email];
-    document.getElementById('manuals-btn').classList.toggle('disabled', !p.manuals);
-    document.getElementById('store-btn').classList.toggle('disabled', !p.store);
+    if (document.getElementById('manuals-btn')) 
+        document.getElementById('manuals-btn').classList.toggle('disabled', !p.manuals);
+    if (document.getElementById('store-btn')) 
+        document.getElementById('store-btn').classList.toggle('disabled', !p.store);
+    
     Object.keys(linksMap).forEach(type => {
         const hasAccess = linksMap[type].some(item => p[item.key] && p[item.key][type]);
-        document.getElementById(`card-${type}`).classList.toggle('disabled', !hasAccess);
+        const card = document.getElementById(`card-${type}`);
+        if (card) card.classList.toggle('disabled', !hasAccess);
     });
 }
 
