@@ -1,220 +1,526 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SMB</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>SMB | Dashboard</title>
 
-<!-- Favicon -->
-<link rel="icon" type="image/png" sizes="192x192" href="https://i.postimg.cc/QNkbRTbS/1.png">
-<link rel="shortcut icon" href="https://i.postimg.cc/QNkbRTbS/1.png">
-<link rel="apple-touch-icon" href="https://i.postimg.cc/QNkbRTbS/1.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://i.postimg.cc/QNkbRTbS/1.png">
+    <link rel="shortcut icon" href="https://i.postimg.cc/QNkbRTbS/1.png">
 
-<style>
-*{
-    box-sizing:border-box;
-}
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-body{
-    margin:0;
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:#f0f2f5;
-    font-family:'Segoe UI', sans-serif;
-    padding:40px 20px;
-}
+    <style>
+        :root {
+            --primary: #1f2937;
+            --accent: #dc143c;
+            --bg: #f0f2f5;
+            --white: #ffffff;
+            --text-dark: #1f2937;
+            --text-muted: #6b7280;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-.container {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:40px;
-    width:100%;
-    max-width:1200px;
-}
+        * { box-sizing: border-box; }
 
-/* ===== КНОПКИ MANUALS И МАГАЗИН ===== */
-.top-buttons {
-    display:flex;
-    gap:30px;
-    justify-content:center;
-    width:100%;
-}
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            padding: 20px;
+            color: var(--text-dark);
+        }
 
-.top-button {
-    flex: 1;
-    max-width:300px;
-    padding:20px 30px;
-    background:#1f2937;
-    color:white;
-    text-decoration:none;
-    border-radius:14px;
-    font-size:18px;
-    font-weight:600;
-    text-align:center;
-    letter-spacing:1px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.08);
-    transition:0.3s ease;
-}
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            width: 100%;
+            max-width: 900px;
+            animation: fadeIn 0.8s ease;
+        }
 
-.top-button:hover {
-    transform:translateY(-4px);
-    background:#dc143c;
-}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-/* ===== CARD ===== */
-.wrapper{
-    display:flex;
-    gap:40px;
-    justify-content:center;
-    width:100%;
-}
+        /* ===== AUTH BLOCKS ===== */
+        #login, #user-info, #access-denied {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
 
-.dropdown{
-    width:260px;
-    background:#ffffff;
-    border-radius:14px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.08);
-    overflow:hidden;
-    transition:0.3s ease;
-}
+        #user-info {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 15px;
+            text-align: left;
+            padding: 12px 20px;
+        }
 
-.dropdown:hover{
-    transform:translateY(-4px);
-}
+        #user-info img {
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            border: 2px solid var(--accent);
+        }
 
-.dropbtn{
-    padding:18px;
-    background:#1f2937;
-    color:#fff;
-    font-size:16px;
-    font-weight:600;
-    text-align:center;
-    letter-spacing:1px;
-}
+        #user-info .user-details { flex-grow: 1; }
+        #user-info p { margin: 0; font-size: 14px; font-weight: 600; }
+        #user-info #user-email { font-weight: 400; color: var(--text-muted); font-size: 12px; }
 
-.dropdown-content a{
-    display:block;
-    padding:16px 20px;
-    font-size:14px;
-    text-decoration:none;
-    color:#333;
-    border-bottom:1px solid #f0f2f5;
-    transition:0.25s;
-}
+        #logout-btn {
+            background: #f1f5f9;
+            color: var(--text-dark);
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
 
-.dropdown-content a:last-child{
-    border-bottom:none;
-}
+        #logout-btn:hover { background: var(--accent); color: white; }
 
-.dropdown-content a:hover{
-    background:#dc143c;
-    color:#fff;
-}
+        /* ===== TOP NAV BUTTONS — теперь как карточки ===== */
+        .top-buttons {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+        }
 
-/* ===== MOBILE ===== */
-@media (max-width: 768px){
+        .top-card {
+            flex: 1;
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.02);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            aspect-ratio: 1 / 1;
+        }
 
-    body{
-        padding:40px 20px;
-        align-items:flex-start;
-    }
+        .top-card:hover:not(.disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+        }
 
-    .container {
-        gap:30px;
-    }
+        .top-card .action-btn {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+            font-family: inherit;
+        }
 
-    .top-buttons {
-        flex-direction:column;
-        align-items:center;
-        gap:15px;
-    }
+        .top-card .action-btn i {
+            font-size: 32px;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
 
-    .top-button {
-        width:100%;
-        max-width:100%;
-    }
+        .top-card .action-btn span {
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            color: var(--primary);
+            text-align: center;
+            line-height: 1.2;
+        }
 
-    .wrapper{
-        flex-direction:column;
-        width:100%;
-        gap:25px;
-    }
+        .top-card:hover:not(.disabled) .action-btn i {
+            color: var(--accent);
+        }
 
-    .dropdown{
-        width:100%;
-        animation:fadeUp 0.6s ease forwards;
-        opacity:0;
-    }
+        /* ===== ACTION GRID (всегда 2 колонки) ===== */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            width: 100%;
+            margin-top: 20px;
+        }
 
-    .dropdown:nth-child(1){ animation-delay:0.1s; }
-    .dropdown:nth-child(2){ animation-delay:0.2s; }
-    .dropdown:nth-child(3){ animation-delay:0.3s; }
-}
+        .action-card {
+            background: var(--white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+        }
 
-@keyframes fadeUp{
-    from{
-        opacity:0;
-        transform:translateY(20px);
-    }
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
-}
-</style>
+        /* Квадратная кнопка с соотношением 1:1 */
+        .action-btn {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            transition: var(--transition);
+        }
+
+        .action-btn i {
+            font-size: 32px;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .action-btn span {
+            font-weight: 800;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            color: var(--primary);
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .action-card:hover:not(.disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+        }
+
+        .action-card:hover:not(.disabled) .action-btn i { color: var(--accent); }
+
+        /* ===== DROPDOWN CONTENT ===== */
+        .action-dropdown {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .action-dropdown.active {
+            max-height: 300px;
+            border-top: 1px solid #edf2f7;
+        }
+
+        .action-link {
+            padding: 14px 20px;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 1px solid #edf2f7;
+            transition: 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-link:after {
+            content: '\f105';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            opacity: 0.3;
+        }
+
+        .action-link:hover {
+            background: var(--primary);
+            color: white;
+            padding-left: 25px;
+        }
+
+        /* ===== UTILS ===== */
+        .disabled {
+            opacity: 0.4;
+            filter: grayscale(1);
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+
+        #access-denied h3 { color: var(--accent); }
+        .denied-email { background: #fff1f2; color: var(--accent); padding: 10px; border-radius: 10px; margin: 15px 0; font-family: monospace; }
+
+        /* --- АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ --- */
+        @media (max-width: 480px) {
+            .action-grid, .top-buttons {
+                gap: 15px;
+            }
+            .action-btn, .top-card .action-btn {
+                padding: 8px;
+            }
+            .action-btn i, .top-card .action-btn i {
+                font-size: 28px;
+            }
+            .action-btn span, .top-card .action-btn span {
+                font-size: 12px;
+            }
+        }
+
+        /* Если экран совсем узкий, можно переключить основные кнопки в 1 колонку */
+        @media (max-width: 360px) {
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
-
 <body>
 
 <div class="container">
 
-    <!-- ОТДЕЛЬНЫЕ КНОПКИ MANUALS И МАГАЗИН -->
-    <div class="top-buttons">
-        <a href="https://smart-bowling.github.io/MANUALS-SMART/" class="top-button" target="_blank">MANUALS</a>
-        <a href="https://smart-bowling.github.io/PARTS-STORE/" class="top-button" target="_blank">МАГАЗИН</a>
+    <div id="login">
+        <i class="fas fa-shield-halved" style="font-size: 40px; color: var(--primary); margin-bottom: 15px;"></i>
+        <h2>SMB Login</h2>
+        <div id="g_id_onload"
+             data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin" data-type="standard" data-shape="pill"></div>
     </div>
 
-    <!-- ОСНОВНЫЕ КАРТОЧКИ -->
-    <div class="wrapper">
-
-        <!-- LUCKY STRIKE KH -->
-        <div class="dropdown">
-            <div class="dropbtn">LUCKY STRIKE KH</div>
-            <div class="dropdown-content">
-                <a href="https://smart-bowling.github.io/PARTS-KH/" target="_blank">ДЕТАЛИ</a>
-                <a href="https://smart-bowling.github.io/SMB-LS-KH/" target="_blank">ОБСЛУЖИВАНИЕ</a>
-                <a href="https://smart-bowling.github.io/PS-STOP-KH/" target="_blank">FPS</a>
-            </div>
+    <div id="user-info" style="display: none;">
+        <img id="user-pic" src="" alt="Profile">
+        <div class="user-details">
+            <p id="user-name"></p>
+            <p id="user-email"></p>
         </div>
-
-        <!-- BLOCKBUSTER -->
-        <div class="dropdown">
-            <div class="dropbtn">BLOCKBUSTER</div>
-            <div class="dropdown-content">
-                <a href="https://smart-bowling.github.io/PARTS-BB/" target="_blank">ДЕТАЛИ</a>
-                <a href="https://smart-bowling.github.io/SMB-BB/" target="_blank">ОБСЛУЖИВАНИЕ</a>
-                <a href="https://script.google.com/macros/s/AKfycbzRY_VAuCIXx1EY_Zi_GIv5bX5NNXGyJqQzYCDalbhaKktxBupMj4mTl346wcerj615/exec" target="_blank">АНАЛИЗ</a>
-                <a href="https://smart-bowling.github.io/PS-STOP-BB/" target="_blank">FPS</a>
-            </div>
-        </div>
-
-        <!-- SKYMALL -->
-        <div class="dropdown">
-            <div class="dropbtn">SKYMALL</div>
-            <div class="dropdown-content">
-                <a href="https://smart-bowling.github.io/PARTS-SKYMALL/" target="_blank">ДЕТАЛИ</a>
-                <a href="https://smart-bowling.github.io/SMB-SKYMALL/" target="_blank">ОБСЛУЖИВАНИЕ</a>
-                <a href="https://script.google.com/macros/s/AKfycby13scwPKOZmJG4FsEgLIbiMBFdq4Txe37HEFJfISFZO0UYfsisyhcGbKojm_73J6g/exec" target="_blank">АНАЛИЗ</a>
-                <a href="https://smart-bowling.github.io/PS-STOP-SKYMALL/" target="_blank">FPS</a>
-            </div>
-        </div>
-
+        <button id="logout-btn" onclick="signOut()" title="Sign Out">
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
     </div>
 
+    <div id="access-denied" style="display: none;">
+        <i class="fas fa-ban" style="font-size: 40px; color: var(--accent); margin-bottom: 15px;"></i>
+        <h3>Access Denied</h3>
+        <p>Your email is not registered:</p>
+        <div class="denied-email" id="denied-email"></div>
+        <button id="logout-btn" style="width:auto; padding: 10px 20px; margin: 0 auto;" onclick="backToLogin()">Go Back</button>
+    </div>
+
+    <div class="main-content" id="main-content" style="display:none; width: 100%;">
+        <!-- Две квадратные карточки в ряд: Manuals и Store -->
+        <div class="top-buttons">
+            <a href="https://smart-bowling.github.io/MANUALS-SMART/" class="top-card" id="manuals-btn" target="_blank">
+                <div class="action-btn">
+                    <i class="fas fa-book"></i>
+                    <span>MANUALS</span>
+                </div>
+            </a>
+            <a href="https://smart-bowling.github.io/PARTS-STORE/" class="top-card" id="store-btn" target="_blank">
+                <div class="action-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>STORE</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Сетка 2x2 для основных разделов -->
+        <div class="action-grid">
+            <div class="action-card" id="card-parts">
+                <button class="action-btn" onclick="handleAction('parts')">
+                    <i class="fas fa-cog"></i>
+                    <span>PARTS</span>
+                </button>
+                <div class="action-dropdown" id="drop-parts"></div>
+            </div>
+
+            <div class="action-card" id="card-maintenance">
+                <button class="action-btn" onclick="handleAction('maintenance')">
+                    <i class="fas fa-tools"></i>
+                    <span>MAINTENANCE</span>
+                </button>
+                <div class="action-dropdown" id="drop-maintenance"></div>
+            </div>
+
+            <div class="action-card" id="card-fps">
+                <button class="action-btn" onclick="handleAction('fps')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>FPS</span>
+                </button>
+                <div class="action-dropdown" id="drop-fps"></div>
+            </div>
+
+            <div class="action-card" id="card-analysis">
+                <button class="action-btn" onclick="handleAction('analysis')">
+                    <i class="fas fa-bowling-ball"></i>
+                    <span>ANALYSIS</span>
+                </button>
+                <div class="action-dropdown" id="drop-analysis"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<script>
+// --- CONFIGURATION ---
+const userPermissions = {
+    'vadiksss900@gmail.com': {
+        manuals: true, store: true,
+        luckyStrike: { parts: true, maintenance: true, fps: true },
+        blockbuster: { parts: true, maintenance: true, analysis: true, fps: true },
+        skymall: { parts: true, maintenance: true, analysis: true, fps: true }
+    },
+    'csportsua@gmail.com': {
+        manuals: true, store: false,
+        luckyStrike: { parts: false, maintenance: false, fps: false },
+        blockbuster: { parts: false, maintenance: false, analysis: false, fps: false },
+        skymall: { parts: true, maintenance: false, analysis: false, fps: false }
+    }
+};
+
+const linksMap = {
+    parts: [
+        { name: 'Lucky Strike KH', url: 'https://smart-bowling.github.io/PARTS-KH/', key: 'luckyStrike' },
+        { name: 'Blockbuster', url: 'https://smart-bowling.github.io/PARTS-BB/', key: 'blockbuster' },
+        { name: 'Skymall', url: 'https://smart-bowling.github.io/PARTS-SKYMALL/', key: 'skymall' }
+    ],
+    maintenance: [
+        { name: 'Lucky Strike KH', url: 'https://smart-bowling.github.io/SMB-LS-KH/', key: 'luckyStrike' },
+        { name: 'Blockbuster', url: 'https://smart-bowling.github.io/SMB-BB/', key: 'blockbuster' },
+        { name: 'Skymall', url: 'https://smart-bowling.github.io/SMB-SKYMALL/', key: 'skymall' }
+    ],
+    fps: [
+        { name: 'Lucky Strike KH', url: 'https://smart-bowling.github.io/PS-STOP-KH/', key: 'luckyStrike' },
+        { name: 'Blockbuster', url: 'https://smart-bowling.github.io/PS-STOP-BB/', key: 'blockbuster' },
+        { name: 'Skymall', url: 'https://smart-bowling.github.io/PS-STOP-SKYMALL/', key: 'skymall' }
+    ],
+    analysis: [
+        { name: 'Blockbuster', url: 'https://smart-bowling.github.io/ANALYSIS-BB/', key: 'blockbuster' },
+        { name: 'Skymall', url: 'https://smart-bowling.github.io/ANALYSIS-SM/', key: 'skymall' }
+    ]
+};
+
+// --- AUTH LOGIC ---
+function handleCredentialResponse(response) {
+    const payload = parseJwt(response.credential);
+    const email = payload.email.toLowerCase();
+    
+    if (userPermissions[email]) {
+        loginUser(payload);
+    } else {
+        showDenied(email);
+    }
+}
+
+function loginUser(payload) {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('user-info').style.display = 'flex';
+    document.getElementById('main-content').style.display = 'block';
+    
+    document.getElementById('user-pic').src = payload.picture;
+    document.getElementById('user-name').textContent = payload.name;
+    document.getElementById('user-email').textContent = payload.email;
+
+    localStorage.setItem('userLoggedIn', 'true');
+    localStorage.setItem('userEmail', payload.email.toLowerCase());
+    localStorage.setItem('userName', payload.name);
+    localStorage.setItem('userPic', payload.picture);
+
+    applyPermissions(payload.email.toLowerCase());
+}
+
+// --- CORE LOGIC ---
+function handleAction(type) {
+    const email = localStorage.getItem('userEmail');
+    const p = userPermissions[email];
+    
+    // Фильтруем ссылки, к которым есть доступ
+    const available = linksMap[type].filter(item => p[item.key] && p[item.key][type]);
+
+    if (available.length === 0) return;
+
+    if (available.length === 1) {
+        window.open(available[0].url, '_blank');
+    } else {
+        const drop = document.getElementById(`drop-${type}`);
+        const isActive = drop.classList.contains('active');
+        
+        // Закрываем все остальные
+        document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
+        
+        if (!isActive) {
+            drop.innerHTML = available.map(link => 
+                `<a href="${link.url}" target="_blank" class="action-link">${link.name}</a>`
+            ).join('');
+            drop.classList.add('active');
+        }
+    }
+}
+
+function applyPermissions(email) {
+    const p = userPermissions[email];
+    
+    // Top cards (Manuals & Store)
+    document.getElementById('manuals-btn').classList.toggle('disabled', !p.manuals);
+    document.getElementById('store-btn').classList.toggle('disabled', !p.store);
+
+    // Cards
+    Object.keys(linksMap).forEach(type => {
+        const hasAccess = linksMap[type].some(item => p[item.key] && p[item.key][type]);
+        document.getElementById(`card-${type}`).classList.toggle('disabled', !hasAccess);
+    });
+}
+
+// --- UTILS ---
+function parseJwt(token) {
+    return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+}
+
+function signOut() {
+    localStorage.clear();
+    location.reload();
+}
+
+function showDenied(email) {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('access-denied').style.display = 'block';
+    document.getElementById('denied-email').textContent = email;
+}
+
+function backToLogin() { location.reload(); }
+
+window.onload = () => {
+    if (localStorage.getItem('userLoggedIn') === 'true') {
+        const email = localStorage.getItem('userEmail');
+        if (userPermissions[email]) {
+            loginUser({
+                email: email,
+                name: localStorage.getItem('userName'),
+                picture: localStorage.getItem('userPic')
+            });
+        }
+    }
+}
+</script>
 </body>
 </html>
