@@ -36,8 +36,6 @@
             color: var(--text-dark);
         }
 
-        body.modal-open { overflow: hidden; }
-
         .container {
             display: flex;
             flex-direction: column;
@@ -45,6 +43,12 @@
             gap: 25px;
             width: 100%;
             max-width: 900px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* ===== AUTH BLOCKS ===== */
@@ -91,10 +95,10 @@
 
         #logout-btn:hover { background: var(--accent); color: white; }
 
-        /* ===== ACTION GRID ===== */
+        /* ===== ACTION GRID (3 в ряд на ПК, 2 на моб) ===== */
         .action-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(3, 1fr); /* По умолчанию 3 колонки */
             gap: 20px;
             width: 100%;
         }
@@ -161,12 +165,12 @@
         }
 
         .action-dropdown.active {
-            max-height: 400px;
+            max-height: 300px;
             border-top: 1px solid #edf2f7;
         }
 
         .action-link {
-            padding: 16px 20px;
+            padding: 14px 20px;
             text-decoration: none;
             color: var(--text-dark);
             font-size: 14px;
@@ -188,26 +192,7 @@
         .action-link:hover {
             background: var(--primary);
             color: white;
-        }
-
-        /* ===== FULLSCREEN IFRAME SYSTEM (NO LOADER) ===== */
-        #iframe-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: var(--white);
-            z-index: 99999;
-            display: none;
-            border: none;
-        }
-
-        #main-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            outline: none;
+            padding-left: 25px;
         }
 
         /* ===== UTILS ===== */
@@ -218,14 +203,40 @@
             cursor: not-allowed;
         }
 
+        #access-denied h3 { color: var(--accent); }
+        .denied-email { background: #fff1f2; color: var(--accent); padding: 10px; border-radius: 10px; margin: 15px 0; font-family: monospace; }
+
+        /* --- АДАПТАЦИЯ --- */
         @media (max-width: 768px) {
-            .action-grid { grid-template-columns: repeat(2, 1fr); }
+            .action-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 в ряд на планшетах */
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .action-btn {
+                padding: 10px;
+            }
+            .action-btn i {
+                font-size: 28px;
+            }
+            .action-btn span {
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .action-grid {
+                grid-template-columns: 1fr; /* 1 в ряд на совсем маленьких экранах */
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
+
     <div id="login">
         <i class="fas fa-shield-halved" style="font-size: 40px; color: var(--primary); margin-bottom: 15px;"></i>
         <h2>SMB Login</h2>
@@ -252,22 +263,23 @@
         <i class="fas fa-ban" style="font-size: 40px; color: var(--accent); margin-bottom: 15px;"></i>
         <h3>Access Denied</h3>
         <p>Your email is not registered:</p>
-        <div id="denied-email" style="background: #fff1f2; color: var(--accent); padding: 10px; border-radius: 10px; margin: 15px 0; font-family: monospace;"></div>
+        <div class="denied-email" id="denied-email"></div>
         <button id="logout-btn" style="width:auto; padding: 10px 20px; margin: 0 auto;" onclick="backToLogin()">Go Back</button>
     </div>
 
     <div class="main-content" id="main-content" style="display:none; width: 100%;">
+        
         <div class="action-grid">
             
             <div class="action-card" id="manuals-btn">
-                <a href="https://smart-bowling.github.io/MANUALS-SMART/" class="action-btn">
+                <a href="https://smart-bowling.github.io/MANUALS-SMART/" target="_blank" class="action-btn">
                     <i class="fas fa-book"></i>
                     <span>MANUALS</span>
                 </a>
             </div>
 
             <div class="action-card" id="store-btn">
-                <a href="https://smart-bowling.github.io/PARTS-STORE/" class="action-btn">
+                <a href="https://smart-bowling.github.io/PARTS-STORE/" target="_blank" class="action-btn">
                     <i class="fas fa-shopping-cart"></i>
                     <span>STORE</span>
                 </a>
@@ -309,10 +321,6 @@
     </div>
 </div>
 
-<div id="iframe-container">
-    <iframe id="main-iframe" src=""></iframe>
-</div>
-
 <script>
 const userPermissions = {
     'vadiksss900@gmail.com': {
@@ -351,33 +359,6 @@ const linksMap = {
     ]
 };
 
-// IFRAME NAVIGATION
-function openIframe(url) {
-    const container = document.getElementById('iframe-container');
-    const iframe = document.getElementById('main-iframe');
-    iframe.src = url;
-    container.style.display = 'block';
-    document.body.classList.add('modal-open');
-    history.pushState({iframeOpen: true}, "");
-}
-
-window.onpopstate = function(event) {
-    const container = document.getElementById('iframe-container');
-    const iframe = document.getElementById('main-iframe');
-    container.style.display = 'none';
-    iframe.src = "";
-    document.body.classList.remove('modal-open');
-};
-
-document.addEventListener('click', function(e) {
-    const anchor = e.target.closest('a');
-    if (anchor && anchor.href && !anchor.onclick && !anchor.href.startsWith('javascript') && !anchor.href.includes('#')) {
-        e.preventDefault();
-        openIframe(anchor.href);
-    }
-});
-
-// AUTH & UI
 function handleCredentialResponse(response) {
     const payload = parseJwt(response.credential);
     const email = payload.email.toLowerCase();
@@ -403,16 +384,15 @@ function handleAction(type) {
     const p = userPermissions[email];
     const available = linksMap[type].filter(item => p[item.key] && p[item.key][type]);
     if (available.length === 0) return;
-    
     if (available.length === 1) {
-        openIframe(available[0].url);
+        window.open(available[0].url, '_blank');
     } else {
         const drop = document.getElementById(`drop-${type}`);
         const isActive = drop.classList.contains('active');
         document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
         if (!isActive) {
             drop.innerHTML = available.map(link => 
-                `<a href="${link.url}" class="action-link">${link.name}</a>`
+                `<a href="${link.url}" target="_blank" class="action-link">${link.name}</a>`
             ).join('');
             drop.classList.add('active');
         }
@@ -425,8 +405,7 @@ function applyPermissions(email) {
     document.getElementById('store-btn').classList.toggle('disabled', !p.store);
     Object.keys(linksMap).forEach(type => {
         const hasAccess = linksMap[type].some(item => p[item.key] && p[item.key][type]);
-        const card = document.getElementById(`card-${type}`);
-        if(card) card.classList.toggle('disabled', !hasAccess);
+        document.getElementById(`card-${type}`).classList.toggle('disabled', !hasAccess);
     });
 }
 
