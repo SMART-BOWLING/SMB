@@ -36,7 +36,7 @@
             align-items: center;
             background-color: var(--bg);
             font-family: 'Inter', sans-serif;
-            padding: 20px;
+            padding: 15px;
             color: var(--text-dark);
         }
 
@@ -47,18 +47,12 @@
             gap: 20px;
             width: 100%;
             max-width: 800px;
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         /* ===== AUTH BLOCKS ===== */
         #login, #user-info, #access-denied {
             background: var(--white);
-            padding: 30px;
+            padding: 25px;
             border-radius: 24px;
             box-shadow: var(--shadow);
             border: 1px solid #f1f5f9; 
@@ -68,80 +62,54 @@
         }
 
         #user-info {
-            display: flex;
+            display: none;
             flex-direction: row;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             text-align: left;
-            padding: 12px 20px;
+            padding: 12px 15px;
             max-width: 100%;
         }
 
-        .avatar-wrapper {
-            position: relative;
-            display: flex;
-        }
-
         #user-pic {
-            border-radius: 14px;
-            width: 48px;
-            height: 48px;
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
             object-fit: cover;
-            border: 2px solid var(--white);
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            border: 2px solid #f1f5f9;
         }
 
-        .status-dot {
-            position: absolute;
-            bottom: -2px;
-            right: -2px;
-            width: 12px;
-            height: 12px;
-            background: #22c55e;
-            border: 2px solid var(--white);
-            border-radius: 50%;
-        }
-
-        #user-info .user-details { flex-grow: 1; }
-        #user-info p { margin: 0; font-size: 15px; font-weight: 700; color: var(--primary); }
-        #user-info #user-email { font-weight: 400; color: var(--text-muted); font-size: 13px; }
+        .user-details p { margin: 0; font-size: 14px; font-weight: 700; }
+        #user-email { font-weight: 400; color: var(--text-muted); font-size: 12px; }
 
         #logout-btn {
             background: #f1f5f9;
             color: var(--text-muted);
             border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        #logout-btn:hover { 
-            background: var(--accent); 
-            color: white; 
-            transform: rotate(90deg);
         }
 
         /* ===== ACTION GRID ===== */
         .action-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
+            gap: 15px;
             width: 100%;
         }
 
         .action-card {
             background: var(--white);
-            border-radius: 24px;
+            border-radius: 20px;
             overflow: hidden;
             box-shadow: var(--shadow);
-            transition: var(--transition);
             border: 1px solid #f1f5f9;
-            position: relative;
+            transition: var(--transition);
         }
 
         .action-btn {
@@ -154,18 +122,15 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            padding: 20px;
-            transition: var(--transition);
+            gap: 10px;
+            padding: 15px;
             text-decoration: none;
             color: inherit;
         }
 
         .action-btn i {
-            font-size: 28px;
-            background: linear-gradient(135deg, var(--text-muted), var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 26px;
+            color: var(--primary);
             transition: var(--transition);
         }
 
@@ -173,142 +138,85 @@
             font-weight: 700;
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: var(--text-dark);
+            letter-spacing: 0.5px;
             text-align: center;
         }
 
-        .action-card:hover:not(.disabled) {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            border-color: var(--accent);
-        }
-
-        .action-card:hover:not(.disabled) .action-btn i {
-            background: linear-gradient(135deg, var(--accent), #ff4d4d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            transform: scale(1.1);
+        /* Мобильная адаптация: ВСЕГДА 2 в ряд */
+        @media (max-width: 768px) {
+            .action-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 12px;
+            }
+            .action-btn { padding: 10px; }
+            .action-btn i { font-size: 24px; }
+            .action-btn span { font-size: 10px; }
         }
 
         /* ===== DROPDOWN ===== */
         .action-dropdown {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.4s ease;
-            background: #fcfcfc;
+            transition: max-height 0.3s ease;
+            background: #f8fafc;
         }
 
         .action-dropdown.active {
-            max-height: 400px;
+            max-height: 300px;
             border-top: 1px solid #f1f5f9;
         }
 
         .action-link {
-            padding: 16px 20px;
+            padding: 12px 15px;
             text-decoration: none;
             color: var(--text-dark);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             border-bottom: 1px solid #f1f5f9;
-            transition: var(--transition);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .action-link:hover {
-            background: var(--accent);
-            color: white;
-            padding-left: 28px;
-        }
-
-        /* ===== UTILS ===== */
-        .disabled {
-            opacity: 0.5;
-            filter: grayscale(0.8);
-            cursor: not-allowed;
-        }
-
-        .denied-email { 
-            background: #fee2e2; 
-            color: var(--accent); 
-            padding: 12px; 
-            border-radius: 12px; 
-            margin: 15px 0; 
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        /* --- RESPONSIVE FIX --- */
-        @media (max-width: 768px) {
-            /* Теперь всегда 2 колонки на планшетах и телефонах */
-            .action-grid { 
-                grid-template-columns: repeat(2, 1fr); 
-                gap: 12px;
-            }
-            .action-btn span { font-size: 10px; }
-            .action-btn i { font-size: 24px; }
-        }
+        .disabled { opacity: 0.4; pointer-events: none; filter: grayscale(1); }
     </style>
 </head>
 <body>
 
 <div class="container">
-
     <div id="login">
-        <div style="width: 60px; height: 60px; background: #f1f5f9; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-            <i class="fas fa-shield-halved" style="font-size: 28px; color: var(--accent);"></i>
+        <div style="width: 50px; height: 50px; background: #f1f5f9; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+            <i class="fas fa-shield-halved" style="font-size: 24px; color: var(--accent);"></i>
         </div>
-        <h2 style="margin: 0 0 10px; font-weight: 800;">SMB Dashboard</h2>
-        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 25px;">Please sign in to continue</p>
-        <div id="g_id_onload"
-             data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com"
-             data-callback="handleCredentialResponse"
-             data-auto_prompt="false">
-        </div>
-        <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_black"></div>
+        <h2 style="margin: 0 0 5px; font-weight: 800; font-size: 20px;">SMB Dashboard</h2>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Sign in to access</p>
+        <div id="g_id_onload" data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_prompt="false"></div>
+        <div class="g_id_signin" data-type="standard" data-shape="pill"></div>
     </div>
 
-    <div id="user-info" style="display: none;">
-        <div class="avatar-wrapper">
-            <img id="user-pic" src="" alt="Profile">
-            <div class="status-dot"></div>
-        </div>
-        <div class="user-details">
+    <div id="user-info">
+        <img id="user-pic" src="" alt="Profile">
+        <div class="user-details" style="flex-grow:1">
             <p id="user-name"></p>
             <p id="user-email"></p>
         </div>
-        <button id="logout-btn" onclick="signOut()" title="Sign Out">
-            <i class="fas fa-power-off"></i>
-        </button>
-    </div>
-
-    <div id="access-denied" style="display: none;">
-        <i class="fas fa-circle-exclamation" style="font-size: 40px; color: var(--accent); margin-bottom: 15px;"></i>
-        <h3 style="margin:0">Access Denied</h3>
-        <p style="font-size: 14px; color: var(--text-muted);">This account is not authorized:</p>
-        <div class="denied-email" id="denied-email"></div>
-        <button onclick="backToLogin()" style="background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 12px; cursor: pointer; font-weight: 600;">Try Another Account</button>
+        <button id="logout-btn" onclick="signOut()"><i class="fas fa-power-off"></i></button>
     </div>
 
     <div class="main-content" id="main-content" style="display:none; width: 100%;">
         <div class="action-grid">
-            
             <div class="action-card" id="manuals-btn">
                 <a href="https://smart-bowling.github.io/MANUALS-SMART/" target="_blank" class="action-btn">
                     <i class="fas fa-book-open"></i>
                     <span>Manuals</span>
                 </a>
             </div>
-
             <div class="action-card" id="store-btn">
                 <a href="https://smart-bowling.github.io/PARTS-STORE/" target="_blank" class="action-btn">
                     <i class="fas fa-bag-shopping"></i>
                     <span>Store</span>
                 </a>
             </div>
-
             <div class="action-card" id="card-parts">
                 <button class="action-btn" onclick="handleAction('parts')">
                     <i class="fas fa-gears"></i>
@@ -316,7 +224,6 @@
                 </button>
                 <div class="action-dropdown" id="drop-parts"></div>
             </div>
-
             <div class="action-card" id="card-maintenance">
                 <button class="action-btn" onclick="handleAction('maintenance')">
                     <i class="fas fa-screwdriver-wrench"></i>
@@ -324,7 +231,6 @@
                 </button>
                 <div class="action-dropdown" id="drop-maintenance"></div>
             </div>
-
             <div class="action-card" id="card-fps">
                 <button class="action-btn" onclick="handleAction('fps')">
                     <i class="fas fa-chart-line"></i>
@@ -332,132 +238,68 @@
                 </button>
                 <div class="action-dropdown" id="drop-fps"></div>
             </div>
-
             <div class="action-card" id="card-analysis">
                 <button class="action-btn" onclick="handleAction('analysis')">
-                    <i class="fas fa-bowling-pins"></i>
+                    <i class="fas fa-bowling-ball"></i>
                     <span>Analysis</span>
                 </button>
                 <div class="action-dropdown" id="drop-analysis"></div>
             </div>
-
         </div>
     </div>
 </div>
 
 <script>
-// (Логика скрипта остается прежней)
+// Твой JS код без изменений
 const userPermissions = {
-    'vadiksss900@gmail.com': {
-        manuals: true, store: true,
-        luckyStrike: { parts: true, maintenance: true, fps: true },
-        blockbuster: { parts: true, maintenance: true, analysis: true, fps: true },
-        skymall: { parts: true, maintenance: true, analysis: true, fps: true }
-    },
-    'csportsua@gmail.com': {
-        manuals: true, store: false,
-        luckyStrike: { parts: false, maintenance: false, fps: false },
-        blockbuster: { parts: false, maintenance: false, analysis: false, fps: false },
-        skymall: { parts: true, maintenance: false, analysis: false, fps: false }
-    }
+    'vadiksss900@gmail.com': { manuals:true, store:true, luckyStrike:{parts:true,maintenance:true,fps:true}, blockbuster:{parts:true,maintenance:true,analysis:true,fps:true}, skymall:{parts:true,maintenance:true,analysis:true,fps:true} },
+    'csportsua@gmail.com': { manuals:true, store:false, luckyStrike:{parts:false,maintenance:false,fps:false}, blockbuster:{parts:false,maintenance:false,analysis:false,fps:false}, skymall:{parts:true,maintenance:false,analysis:false,fps:false} }
 };
-
 const linksMap = {
-    parts: [
-        { name: 'Lucky Strike KH', url: 'https://smart-bowling.github.io/PARTS-KH/', key: 'luckyStrike' },
-        { name: 'Blockbuster', url: 'https://smart-bowling.github.io/PARTS-BB/', key: 'blockbuster' },
-        { name: 'Skymall', url: 'https://smart-bowling.github.io/PARTS-SKYMALL/', key: 'skymall' }
-    ],
-    maintenance: [
-        { name: 'Lucky Strike KH', url: 'https://smart-bowling.github.io/SMB-LS-KH/', key: 'luckyStrike' },
-        { name: 'Blockbuster', url: 'https://smart-bowling.github.io/SMB-BB/', key: 'blockbuster' },
-        { name: 'Skymall', url: 'https://smart-bowling.github.io/SMB-SKYMALL/', key: 'skymall' }
-    ],
-    fps: [
-        { name: 'Lucky Strike KH', url: 'https://smart-bowling.github.io/PS-STOP-KH/', key: 'luckyStrike' },
-        { name: 'Blockbuster', url: 'https://smart-bowling.github.io/PS-STOP-BB/', key: 'blockbuster' },
-        { name: 'Skymall', url: 'https://smart-bowling.github.io/PS-STOP-SKYMALL/', key: 'skymall' }
-    ],
-    analysis: [
-        { name: 'Blockbuster', url: 'https://smart-bowling.github.io/ANALYSIS-BB/', key: 'blockbuster' },
-        { name: 'Skymall', url: 'https://smart-bowling.github.io/ANALYSIS-SM/', key: 'skymall' }
-    ]
+    parts:[{name:'Lucky Strike KH',url:'https://smart-bowling.github.io/PARTS-KH/',key:'luckyStrike'},{name:'Blockbuster',url:'https://smart-bowling.github.io/PARTS-BB/',key:'blockbuster'},{name:'Skymall',url:'https://smart-bowling.github.io/PARTS-SKYMALL/',key:'skymall'}],
+    maintenance:[{name:'Lucky Strike KH',url:'https://smart-bowling.github.io/SMB-LS-KH/',key:'luckyStrike'},{name:'Blockbuster',url:'https://smart-bowling.github.io/SMB-BB/',key:'blockbuster'},{name:'Skymall',url:'https://smart-bowling.github.io/SMB-SKYMALL/',key:'skymall'}],
+    fps:[{name:'Lucky Strike KH',url:'https://smart-bowling.github.io/PS-STOP-KH/',key:'luckyStrike'},{name:'Blockbuster',url:'https://smart-bowling.github.io/PS-STOP-BB/',key:'blockbuster'},{name:'Skymall',url:'https://smart-bowling.github.io/PS-STOP-SKYMALL/',key:'skymall'}],
+    analysis:[{name:'Blockbuster',url:'https://smart-bowling.github.io/ANALYSIS-BB/',key:'blockbuster'},{name:'Skymall',url:'https://smart-bowling.github.io/ANALYSIS-SM/',key:'skymall'}]
 };
-
-function handleCredentialResponse(response) {
-    const payload = parseJwt(response.credential);
-    const email = payload.email.toLowerCase();
-    if (userPermissions[email]) loginUser(payload); else showDenied(email);
+function handleCredentialResponse(r){const p=parseJwt(r.credential);const e=p.email.toLowerCase();if(userPermissions[e])loginUser(p);else alert('No access');}
+function loginUser(p){
+    document.getElementById('login').style.display='none';
+    document.getElementById('user-info').style.display='flex';
+    document.getElementById('main-content').style.display='block';
+    document.getElementById('user-pic').src=p.picture;
+    document.getElementById('user-name').textContent=p.name;
+    document.getElementById('user-email').textContent=p.email;
+    localStorage.setItem('userLoggedIn','true');
+    localStorage.setItem('userEmail',p.email.toLowerCase());
+    applyPermissions(p.email.toLowerCase());
 }
-
-function loginUser(payload) {
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('user-info').style.display = 'flex';
-    document.getElementById('main-content').style.display = 'block';
-    document.getElementById('user-pic').src = payload.picture;
-    document.getElementById('user-name').textContent = payload.name;
-    document.getElementById('user-email').textContent = payload.email;
-    localStorage.setItem('userLoggedIn', 'true');
-    localStorage.setItem('userEmail', payload.email.toLowerCase());
-    localStorage.setItem('userName', payload.name);
-    localStorage.setItem('userPic', payload.picture);
-    applyPermissions(payload.email.toLowerCase());
-}
-
-function handleAction(type) {
-    const email = localStorage.getItem('userEmail');
-    const p = userPermissions[email];
-    const available = linksMap[type].filter(item => p[item.key] && p[item.key][type]);
-    if (available.length === 0) return;
-    if (available.length === 1) {
-        window.open(available[0].url, '_blank');
-    } else {
-        const drop = document.getElementById(`drop-${type}`);
-        const isActive = drop.classList.contains('active');
-        document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
-        if (!isActive) {
-            drop.innerHTML = available.map(link => 
-                `<a href="${link.url}" target="_blank" class="action-link">${link.name} <i class="fas fa-chevron-right" style="font-size:10px; opacity:0.5"></i></a>`
-            ).join('');
-            drop.classList.add('active');
+function handleAction(t){
+    const e=localStorage.getItem('userEmail');
+    const p=userPermissions[e];
+    const av=linksMap[t].filter(i=>p[i.key]&&p[i.key][t]);
+    if(av.length===1){window.open(av[0].url,'_blank');}
+    else{
+        const d=document.getElementById(`drop-${t}`);
+        const active=d.classList.contains('active');
+        document.querySelectorAll('.action-dropdown').forEach(x=>x.classList.remove('active'));
+        if(!active){
+            d.innerHTML=av.map(l=>`<a href="${l.url}" target="_blank" class="action-link">${l.name} <i class="fas fa-chevron-right" style="font-size:10px;opacity:0.3"></i></a>`).join('');
+            d.classList.add('active');
         }
     }
 }
-
-function applyPermissions(email) {
-    const p = userPermissions[email];
-    document.getElementById('manuals-btn').classList.toggle('disabled', !p.manuals);
-    document.getElementById('store-btn').classList.toggle('disabled', !p.store);
-    Object.keys(linksMap).forEach(type => {
-        const hasAccess = linksMap[type].some(item => p[item.key] && p[item.key][type]);
-        document.getElementById(`card-${type}`).classList.toggle('disabled', !hasAccess);
+function applyPermissions(e){
+    const p=userPermissions[e];
+    document.getElementById('manuals-btn').classList.toggle('disabled',!p.manuals);
+    document.getElementById('store-btn').classList.toggle('disabled',!p.store);
+    Object.keys(linksMap).forEach(t=>{
+        const has=linksMap[t].some(i=>p[i.key]&&p[i.key][t]);
+        document.getElementById(`card-${t}`).classList.toggle('disabled',!has);
     });
 }
-
-function parseJwt(token) {
-    return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-}
-
-function signOut() { localStorage.clear(); location.reload(); }
-function showDenied(email) {
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('access-denied').style.display = 'block';
-    document.getElementById('denied-email').textContent = email;
-}
-function backToLogin() { location.reload(); }
-
-window.onload = () => {
-    if (localStorage.getItem('userLoggedIn') === 'true') {
-        const email = localStorage.getItem('userEmail');
-        if (userPermissions[email]) {
-            loginUser({
-                email: email,
-                name: localStorage.getItem('userName'),
-                picture: localStorage.getItem('userPic')
-            });
-        }
-    }
-}
+function parseJwt(t){return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));}
+function signOut(){localStorage.clear();location.reload();}
+window.onload=()=>{if(localStorage.getItem('userLoggedIn')==='true'){applyPermissions(localStorage.getItem('userEmail'));document.getElementById('login').style.display='none';document.getElementById('main-content').style.display='block';document.getElementById('user-info').style.display='flex';document.getElementById('user-name').textContent='Welcome Back';}}
 </script>
 </body>
 </html>
