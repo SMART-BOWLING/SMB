@@ -144,9 +144,10 @@
             z-index: 2;
         }
 
+        /* ИЗМЕНЕНО: Иконки на больших карточках теперь #1f2937 */
         .action-btn i {
             font-size: 26px;
-            color: var(--accent);
+            color: #1f2937;
             transition: var(--transition);
         }
 
@@ -159,8 +160,9 @@
             color: var(--text-dark);
         }
 
+        /* ИЗМЕНЕНО: При наведении иконки становятся акцентным цветом */
         .action-card:hover .action-btn i {
-            color: var(--accent-hover);
+            color: var(--accent);
             transform: scale(1.1);
         }
 
@@ -242,7 +244,6 @@
             border: 1px solid #e2e8f0;
         }
 
-        /* ИЗМЕНЕНО: При наведении фон #1f2937, текст белый */
         .club-sheet-btn:hover {
             background: #1f2937;
             color: white;
@@ -250,14 +251,12 @@
             transform: scale(1.02);
         }
 
-        /* ИЗМЕНЕНО: Иконка по умолчанию #1f2937 */
         .club-sheet-btn i {
             color: #1f2937;
             font-size: 14px;
             transition: var(--transition);
         }
 
-        /* ИЗМЕНЕНО: При наведении иконка белая */
         .club-sheet-btn:hover i {
             color: white;
         }
