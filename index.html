@@ -220,13 +220,13 @@
     <div class="main-content" id="main-content" style="display:none; width: 100%;">
         <div class="action-grid">
             <div class="action-card" id="manuals-btn">
-                <a href="https://smart-bowling.github.io/MANUALS-SMART/" target="_blank" class="action-btn">
+                <a href="https://smart-bowling.github.io/MANUALS-SMART/" class="action-btn">
                     <i class="fas fa-book-open"></i>
                     <span>Manuals</span>
                 </a>
             </div>
             <div class="action-card" id="store-btn">
-                <a href="https://smart-bowling.github.io/PARTS-STORE/" target="_blank" class="action-btn">
+                <a href="https://smart-bowling.github.io/PARTS-STORE/" class="action-btn">
                     <i class="fas fa-bag-shopping"></i>
                     <span>Store</span>
                 </a>
@@ -306,14 +306,14 @@ function handleAction(type) {
     const p = userPermissions[email];
     const available = linksMap[type].filter(item => p[item.key] && p[item.key][type]);
     if (available.length === 1) {
-        window.open(available[0].url, '_blank');
+        window.location.href = available[0].url; // Открываем в текущей вкладке
     } else if (available.length > 1) {
         const drop = document.getElementById(`drop-${type}`);
         const isActive = drop.classList.contains('active');
         document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
         if (!isActive) {
             drop.innerHTML = available.map(link => 
-                `<a href="${link.url}" target="_blank" class="action-link">${link.name} <i class="fas fa-chevron-right" style="font-size:10px; opacity:0.3"></i></a>`
+                `<a href="${link.url}" class="action-link">${link.name} <i class="fas fa-chevron-right" style="font-size:10px; opacity:0.3"></i></a>`
             ).join('');
             drop.classList.add('active');
         }
