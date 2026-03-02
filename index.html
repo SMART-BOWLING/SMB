@@ -18,16 +18,17 @@
             --primary: #0f172a;
             --accent: #e11d48;
             --accent-hover: #be123c;
-            --bg: #ffffff; 
+            --bg: #1f2937; /* Новый цвет фона */
             --white: #ffffff;
             --text-dark: #1e293b;
             --text-muted: #64748b;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
             --transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            --border-soft: 2px solid #334155;
-            --glass-bg: rgba(255, 255, 255, 0.9);
+            --border-soft: 2px solid #4b5563;
+            --glass-bg: rgba(255, 255, 255, 0.95);
             --blur: blur(10px);
+            --card-bg: #ffffff;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -38,7 +39,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg); /* Простой фон #1f2937 */
             font-family: 'Inter', sans-serif;
             padding: 15px;
             color: var(--text-dark);
@@ -55,12 +56,11 @@
 
         /* ===== AUTH BLOCKS ===== */
         #login, #user-info, #access-denied {
-            background: var(--glass-bg);
-            backdrop-filter: var(--blur);
+            background: var(--card-bg);
             padding: 25px;
             border-radius: 24px;
             box-shadow: var(--shadow);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid #4b5563;
             text-align: center;
             width: 100%;
             max-width: 420px;
@@ -74,6 +74,7 @@
             text-align: left;
             padding: 12px 15px;
             max-width: 100%;
+            background: var(--card-bg);
         }
 
         #user-pic {
@@ -81,15 +82,15 @@
             width: 44px;
             height: 44px;
             object-fit: cover;
-            border: 2px solid white;
+            border: 2px solid var(--accent);
         }
 
-        .user-details p { margin: 0; font-size: 14px; font-weight: 700; color: var(--primary); }
+        .user-details p { margin: 0; font-size: 14px; font-weight: 700; color: var(--text-dark); }
         #user-email { font-weight: 400; color: var(--text-muted); font-size: 12px; }
 
         #logout-btn {
-            background: rgba(255, 255, 255, 0.3);
-            color: var(--primary);
+            background: #f1f5f9;
+            color: var(--text-muted);
             border: none;
             width: 36px;
             height: 36px;
@@ -112,12 +113,11 @@
         }
 
         .action-card {
-            background: var(--glass-bg);
-            backdrop-filter: var(--blur);
+            background: var(--card-bg);
             border-radius: 20px;
             overflow: visible;
             box-shadow: var(--shadow);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid #4b5563;
             transition: var(--transition);
             position: relative;
         }
@@ -125,6 +125,7 @@
         .action-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-hover);
+            border-color: var(--accent);
         }
 
         .action-btn {
@@ -148,7 +149,7 @@
 
         .action-btn i {
             font-size: 26px;
-            color: var(--primary);
+            color: var(--accent);
             transition: var(--transition);
         }
 
@@ -158,6 +159,12 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             text-align: center;
+            color: var(--text-dark);
+        }
+
+        .action-card:hover .action-btn i {
+            color: var(--accent-hover);
+            transform: scale(1.1);
         }
 
         /* ===== НОВЫЙ СТИЛЬ ДЛЯ КНОПОК КЛУБОВ ===== */
@@ -173,20 +180,20 @@
 
         .club-bubble {
             position: absolute;
-            background: white;
+            background: var(--card-bg);
             padding: 12px 18px;
             border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
             display: flex;
             align-items: center;
             gap: 8px;
             text-decoration: none;
-            color: var(--primary);
+            color: var(--text-dark);
             font-weight: 600;
             font-size: 13px;
             white-space: nowrap;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(5px);
+            border: 2px solid var(--accent);
+            backdrop-filter: var(--blur);
             opacity: 0;
             transform: scale(0.3);
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -204,16 +211,19 @@
             background: var(--accent);
             color: white;
             transform: scale(1.1) !important;
-            box-shadow: 0 15px 35px rgba(225, 29, 72, 0.3);
+            box-shadow: 0 15px 35px rgba(225, 29, 72, 0.4);
+            border-color: white;
         }
 
         .club-bubble i {
             font-size: 12px;
             transition: transform 0.3s ease;
+            color: var(--accent);
         }
 
         .club-bubble:hover i {
             transform: translateX(3px);
+            color: white;
         }
 
         /* Позиции для баблов */
@@ -241,17 +251,34 @@
             .club-bubble.pos-3 { right: -20px; }
         }
 
-        .disabled { opacity: 0.4; pointer-events: none; filter: grayscale(1); }
+        .disabled { 
+            opacity: 0.4; 
+            pointer-events: none; 
+            filter: grayscale(1);
+        }
+
+        .disabled .action-btn i {
+            color: var(--text-muted);
+        }
 
         /* Эффект пульсации при активации */
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(225, 29, 72, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(225, 29, 72, 0); }
             100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
         }
 
         .action-card.pulse {
             animation: pulse 1s ease;
+        }
+
+        /* Стили для текста в login */
+        #login h2 {
+            color: var(--text-dark);
+        }
+
+        .g_id_signin > div {
+            margin: 0 auto !important;
         }
     </style>
 </head>
@@ -259,10 +286,10 @@
 
 <div class="container">
     <div id="login">
-        <div style="width: 50px; height: 50px; background: rgba(255,255,255,0.3); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
-            <i class="fas fa-shield-halved" style="font-size: 24px; color: var(--primary);"></i>
+        <div style="width: 50px; height: 50px; background: #f1f5f9; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+            <i class="fas fa-shield-halved" style="font-size: 24px; color: var(--accent);"></i>
         </div>
-        <h2 style="margin: 0 0 5px; font-weight: 800; font-size: 20px; color: var(--primary);">SMB Dashboard</h2>
+        <h2 style="margin: 0 0 5px; font-weight: 800; font-size: 20px;">SMB Dashboard</h2>
         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Sign in to access</p>
         <div id="g_id_onload" data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_prompt="false"></div>
         <div class="g_id_signin" data-type="standard" data-shape="pill"></div>
