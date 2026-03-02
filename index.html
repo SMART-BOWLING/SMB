@@ -60,7 +60,7 @@
             text-align: center;
             width: 100%;
             max-width: 420px;
-            border: none; /* Убрана обводка */
+            border: none;
         }
 
         #user-info {
@@ -72,7 +72,7 @@
             padding: 12px 15px;
             max-width: 100%;
             background: var(--card-bg);
-            border: none; /* Убрана обводка */
+            border: none;
         }
 
         #user-pic {
@@ -80,7 +80,7 @@
             width: 44px;
             height: 44px;
             object-fit: cover;
-            border: none; /* Убрана обводка */
+            border: none;
         }
 
         .user-details p { margin: 0; font-size: 14px; font-weight: 700; color: var(--text-dark); }
@@ -117,7 +117,7 @@
             box-shadow: var(--shadow);
             transition: var(--transition);
             position: relative;
-            border: none; /* Убрана обводка */
+            border: none;
         }
 
         .action-card:hover {
@@ -194,7 +194,7 @@
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             pointer-events: none;
             z-index: 20;
-            border: none; /* Убрана красная обводка */
+            border: none;
         }
 
         .club-bubble.active {
@@ -221,7 +221,7 @@
             color: white;
         }
 
-        /* Позиции для баблов - адаптированы чтобы не выходить за экран */
+        /* Позиции для баблов */
         .club-bubble.pos-1 { 
             top: -20px; 
             right: -10px; 
@@ -232,7 +232,7 @@
         }
         .club-bubble.pos-3 { 
             top: 50%; 
-            right: -100px; /* Увеличил отступ чтобы не наезжать на соседнюю карточку */
+            right: -100px;
             transform: translateY(-50%) scale(0.3);
         }
         .club-bubble.pos-3.active { 
@@ -240,8 +240,8 @@
         }
 
         /* Для крайних карточек корректируем позиции */
-        .action-card:last-child .club-bubble.pos-3,
-        .action-card:nth-child(3) .club-bubble.pos-3 {
+        .action-card:nth-child(3) .club-bubble.pos-3,
+        .action-card:nth-child(6) .club-bubble.pos-3 {
             right: auto;
             left: -100px;
         }
@@ -264,8 +264,8 @@
             .club-bubble.pos-2 { bottom: -15px; left: -8px; }
             .club-bubble.pos-3 { right: -70px; }
             
-            .action-card:last-child .club-bubble.pos-3,
-            .action-card:nth-child(3) .club-bubble.pos-3 {
+            .action-card:nth-child(3) .club-bubble.pos-3,
+            .action-card:nth-child(6) .club-bubble.pos-3 {
                 left: -70px;
                 right: auto;
             }
@@ -297,8 +297,24 @@
             color: var(--text-dark);
         }
 
+        /* ВАЖНО: Стили для кнопки Google */
+        .g_id_signin {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
         .g_id_signin > div {
             margin: 0 auto !important;
+        }
+        
+        /* Убеждаемся, что iframe Google видим */
+        iframe[src*="accounts.google.com"] {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            height: 40px !important;
         }
     </style>
 </head>
@@ -311,8 +327,20 @@
         </div>
         <h2 style="margin: 0 0 5px; font-weight: 800; font-size: 20px;">SMB Dashboard</h2>
         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Sign in to access</p>
-        <div id="g_id_onload" data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_prompt="false"></div>
-        <div class="g_id_signin" data-type="standard" data-shape="pill"></div>
+        <div id="g_id_onload" 
+             data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com" 
+             data-callback="handleCredentialResponse" 
+             data-auto_prompt="false"
+             data-auto_select="false">
+        </div>
+        <div class="g_id_signin" 
+             data-type="standard" 
+             data-shape="pill" 
+             data-theme="outline" 
+             data-text="signin_with" 
+             data-size="large" 
+             data-logo_alignment="left">
+        </div>
     </div>
 
     <div id="user-info">
@@ -371,6 +399,26 @@
 </div>
 
 <script>
+// Глобальная функция для обработки ответа Google
+function handleCredentialResponse(response) {
+    console.log("Google response received", response);
+    try {
+        const payload = parseJwt(response.credential);
+        console.log("User email:", payload.email);
+        const email = payload.email.toLowerCase();
+        
+        if (userPermissions[email]) {
+            loginUser(payload);
+        } else {
+            alert('Access Denied: Your email is not authorized');
+            console.log('Unauthorized email:', email);
+        }
+    } catch (e) {
+        console.error("Error parsing Google response:", e);
+        alert('Authentication error');
+    }
+}
+
 const userPermissions = {
     'vadiksss900@gmail.com': { manuals:true, store:true, luckyStrike:{parts:true,maintenance:true,fps:true}, blockbuster:{parts:true,maintenance:true,analysis:true,fps:true}, skymall:{parts:true,maintenance:true,analysis:true,fps:true} },
     'csportsua@gmail.com': { manuals:true, store:false, luckyStrike:{parts:false,maintenance:false,fps:false}, blockbuster:{parts:false,maintenance:false,analysis:false,fps:false}, skymall:{parts:true,maintenance:false,analysis:false,fps:false} }
@@ -401,13 +449,8 @@ const linksMap = {
 // Текущая активная карточка
 let activeCard = null;
 
-function handleCredentialResponse(response) {
-    const payload = parseJwt(response.credential);
-    const email = payload.email.toLowerCase();
-    if (userPermissions[email]) loginUser(payload); else alert('Access Denied');
-}
-
 function loginUser(payload) {
+    console.log("Logging in user:", payload.email);
     document.getElementById('login').style.display = 'none';
     document.getElementById('user-info').style.display = 'flex';
     document.getElementById('main-content').style.display = 'block';
@@ -499,14 +542,60 @@ function applyPermissions(email) {
 }
 
 function parseJwt(token) {
-    return JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
 }
 
 function signOut() { 
+    console.log("Signing out");
     localStorage.clear(); 
     location.reload(); 
 }
 
-window.onload = () => {
+// Проверяем, загружен ли Google API
+window.onload = function() {
+    console.log("Page loaded, checking localStorage...");
+    
+    // Проверяем, есть ли уже сохраненная сессия
     if (localStorage.getItem('userLoggedIn') === 'true') {
         const email = localStorage.getItem('userEmail');
+        const name = localStorage.getItem('userName');
+        const pic = localStorage.getItem('userPic');
+        
+        console.log("Found stored session for:", email);
+        
+        if (userPermissions[email]) {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('user-info').style.display = 'flex';
+            
+            document.getElementById('user-name').textContent = name || 'User';
+            document.getElementById('user-email').textContent = email;
+            if (pic) document.getElementById('user-pic').src = pic;
+            
+            applyPermissions(email);
+            console.log("Session restored");
+        } else {
+            console.log("Stored email not authorized, signing out");
+            signOut();
+        }
+    } else {
+        console.log("No stored session, showing login button");
+        // Убеждаемся, что кнопка логина видна
+        document.getElementById('login').style.display = 'block';
+    }
+}
+
+// Добавляем дополнительную проверку для Google API
+if (typeof google !== 'undefined' && google.accounts) {
+    console.log("Google API loaded");
+} else {
+    console.log("Waiting for Google API to load...");
+}
+</script>
+</body>
+</html>
