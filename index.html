@@ -23,8 +23,11 @@
             --text-dark: #1e293b;
             --text-muted: #64748b;
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            --border-soft: 2px solid #334155; /* Мягкая темно-серая обводка */
+            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --border-soft: 2px solid #334155;
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --blur: blur(10px);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -35,7 +38,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: var(--bg);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             font-family: 'Inter', sans-serif;
             padding: 15px;
             color: var(--text-dark);
@@ -52,11 +55,12 @@
 
         /* ===== AUTH BLOCKS ===== */
         #login, #user-info, #access-denied {
-            background: var(--white);
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur);
             padding: 25px;
             border-radius: 24px;
             box-shadow: var(--shadow);
-            border: 1px solid #f1f5f9; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
             text-align: center;
             width: 100%;
             max-width: 420px;
@@ -77,15 +81,15 @@
             width: 44px;
             height: 44px;
             object-fit: cover;
-            border: 2px solid #f1f5f9;
+            border: 2px solid white;
         }
 
-        .user-details p { margin: 0; font-size: 14px; font-weight: 700; }
+        .user-details p { margin: 0; font-size: 14px; font-weight: 700; color: var(--primary); }
         #user-email { font-weight: 400; color: var(--text-muted); font-size: 12px; }
 
         #logout-btn {
-            background: #f1f5f9;
-            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.3);
+            color: var(--primary);
             border: none;
             width: 36px;
             height: 36px;
@@ -108,18 +112,25 @@
         }
 
         .action-card {
-            background: var(--white);
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur);
             border-radius: 20px;
-            overflow: hidden;
+            overflow: visible;
             box-shadow: var(--shadow);
-            border: 1px solid #f1f5f9;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             transition: var(--transition);
+            position: relative;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
         }
 
         .action-btn {
             width: 100%;
             aspect-ratio: 1 / 1;
-            border: var(--border-soft); /* Мягкая темно-серая обводка */
+            border: none;
             background: transparent;
             cursor: pointer;
             display: flex;
@@ -131,6 +142,8 @@
             text-decoration: none;
             color: inherit;
             border-radius: 20px;
+            position: relative;
+            z-index: 2;
         }
 
         .action-btn i {
@@ -147,7 +160,69 @@
             text-align: center;
         }
 
-        /* Мобильная адаптация: ВСЕГДА 2 в ряд */
+        /* ===== НОВЫЙ СТИЛЬ ДЛЯ КНОПОК КЛУБОВ ===== */
+        .club-bubbles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .club-bubble {
+            position: absolute;
+            background: white;
+            padding: 12px 18px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            transform: scale(0.3);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .club-bubble.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        .club-bubble:hover {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.1) !important;
+            box-shadow: 0 15px 35px rgba(225, 29, 72, 0.3);
+        }
+
+        .club-bubble i {
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .club-bubble:hover i {
+            transform: translateX(3px);
+        }
+
+        /* Позиции для баблов */
+        .club-bubble.pos-1 { top: -20px; right: -20px; }
+        .club-bubble.pos-2 { bottom: -20px; left: -20px; }
+        .club-bubble.pos-3 { top: 50%; right: -30px; transform: translateY(-50%) scale(0.3); }
+        .club-bubble.pos-3.active { transform: translateY(-50%) scale(1); }
+
+        /* Мобильная адаптация */
         @media (max-width: 768px) {
             .action-grid {
                 grid-template-columns: 1fr 1fr !important;
@@ -156,42 +231,27 @@
             .action-btn { padding: 10px; }
             .action-btn i { font-size: 24px; }
             .action-btn span { font-size: 10px; }
-        }
-
-        /* ===== DROPDOWN ===== */
-        .action-dropdown {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-            background: #f8fafc;
-        }
-
-        .action-dropdown.active {
-            max-height: 300px;
-            border-top: 1px solid #f1f5f9;
-        }
-
-        .action-link {
-            padding: 12px 15px;
-            text-decoration: none;
-            color: var(--text-dark);
-            font-size: 13px;
-            font-weight: 600;
-            border-bottom: 1px solid #f1f5f9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            
+            .club-bubble {
+                padding: 8px 14px;
+                font-size: 11px;
+            }
+            .club-bubble.pos-1 { top: -15px; right: -15px; }
+            .club-bubble.pos-2 { bottom: -15px; left: -15px; }
+            .club-bubble.pos-3 { right: -20px; }
         }
 
         .disabled { opacity: 0.4; pointer-events: none; filter: grayscale(1); }
 
-        /* Убираем обводку у всего остального */
-        .g_id_signin {
-            border: none;
+        /* Эффект пульсации при активации */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(225, 29, 72, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
         }
 
-        .action-link {
-            border: none;
+        .action-card.pulse {
+            animation: pulse 1s ease;
         }
     </style>
 </head>
@@ -199,10 +259,10 @@
 
 <div class="container">
     <div id="login">
-        <div style="width: 50px; height: 50px; background: #f1f5f9; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
-            <i class="fas fa-shield-halved" style="font-size: 24px; color: var(--accent);"></i>
+        <div style="width: 50px; height: 50px; background: rgba(255,255,255,0.3); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+            <i class="fas fa-shield-halved" style="font-size: 24px; color: var(--primary);"></i>
         </div>
-        <h2 style="margin: 0 0 5px; font-weight: 800; font-size: 20px;">SMB Dashboard</h2>
+        <h2 style="margin: 0 0 5px; font-weight: 800; font-size: 20px; color: var(--primary);">SMB Dashboard</h2>
         <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Sign in to access</p>
         <div id="g_id_onload" data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com" data-callback="handleCredentialResponse" data-auto_prompt="false"></div>
         <div class="g_id_signin" data-type="standard" data-shape="pill"></div>
@@ -232,32 +292,32 @@
                 </a>
             </div>
             <div class="action-card" id="card-parts">
-                <button class="action-btn" onclick="handleAction('parts')">
+                <button class="action-btn" onclick="handleAction('parts', this)">
                     <i class="fas fa-gears"></i>
                     <span>Parts</span>
                 </button>
-                <div class="action-dropdown" id="drop-parts"></div>
+                <div class="club-bubbles" id="bubbles-parts"></div>
             </div>
             <div class="action-card" id="card-maintenance">
-                <button class="action-btn" onclick="handleAction('maintenance')">
+                <button class="action-btn" onclick="handleAction('maintenance', this)">
                     <i class="fas fa-screwdriver-wrench"></i>
                     <span>Maintenance</span>
                 </button>
-                <div class="action-dropdown" id="drop-maintenance"></div>
+                <div class="club-bubbles" id="bubbles-maintenance"></div>
             </div>
             <div class="action-card" id="card-fps">
-                <button class="action-btn" onclick="handleAction('fps')">
+                <button class="action-btn" onclick="handleAction('fps', this)">
                     <i class="fas fa-chart-line"></i>
                     <span>FPS</span>
                 </button>
-                <div class="action-dropdown" id="drop-fps"></div>
+                <div class="club-bubbles" id="bubbles-fps"></div>
             </div>
             <div class="action-card" id="card-analysis">
-                <button class="action-btn" onclick="handleAction('analysis')">
+                <button class="action-btn" onclick="handleAction('analysis', this)">
                     <i class="fas fa-bowling-ball"></i>
                     <span>Analysis</span>
                 </button>
-                <div class="action-dropdown" id="drop-analysis"></div>
+                <div class="club-bubbles" id="bubbles-analysis"></div>
             </div>
         </div>
     </div>
@@ -270,11 +330,29 @@ const userPermissions = {
 };
 
 const linksMap = {
-    parts:[{name:'Lucky Strike KH',url:'https://smart-bowling.github.io/PARTS-KH/',key:'luckyStrike'},{name:'Blockbuster',url:'https://smart-bowling.github.io/PARTS-BB/',key:'blockbuster'},{name:'Skymall',url:'https://smart-bowling.github.io/PARTS-SKYMALL/',key:'skymall'}],
-    maintenance:[{name:'Lucky Strike KH',url:'https://smart-bowling.github.io/SMB-LS-KH/',key:'luckyStrike'},{name:'Blockbuster',url:'https://smart-bowling.github.io/SMB-BB/',key:'blockbuster'},{name:'Skymall',url:'https://smart-bowling.github.io/SMB-SKYMALL/',key:'skymall'}],
-    fps:[{name:'Lucky Strike KH',url:'https://smart-bowling.github.io/PS-STOP-KH/',key:'luckyStrike'},{name:'Blockbuster',url:'https://smart-bowling.github.io/PS-STOP-BB/',key:'blockbuster'},{name:'Skymall',url:'https://smart-bowling.github.io/PS-STOP-SKYMALL/',key:'skymall'}],
-    analysis:[{name:'Blockbuster',url:'https://smart-bowling.github.io/ANALYSIS-BB/',key:'blockbuster'},{name:'Skymall',url:'https://smart-bowling.github.io/ANALYSIS-SM/',key:'skymall'}]
+    parts:[
+        {name:'Lucky Strike KH', url:'https://smart-bowling.github.io/PARTS-KH/', key:'luckyStrike'},
+        {name:'Blockbuster', url:'https://smart-bowling.github.io/PARTS-BB/', key:'blockbuster'},
+        {name:'Skymall', url:'https://smart-bowling.github.io/PARTS-SKYMALL/', key:'skymall'}
+    ],
+    maintenance:[
+        {name:'Lucky Strike KH', url:'https://smart-bowling.github.io/SMB-LS-KH/', key:'luckyStrike'},
+        {name:'Blockbuster', url:'https://smart-bowling.github.io/SMB-BB/', key:'blockbuster'},
+        {name:'Skymall', url:'https://smart-bowling.github.io/SMB-SKYMALL/', key:'skymall'}
+    ],
+    fps:[
+        {name:'Lucky Strike KH', url:'https://smart-bowling.github.io/PS-STOP-KH/', key:'luckyStrike'},
+        {name:'Blockbuster', url:'https://smart-bowling.github.io/PS-STOP-BB/', key:'blockbuster'},
+        {name:'Skymall', url:'https://smart-bowling.github.io/PS-STOP-SKYMALL/', key:'skymall'}
+    ],
+    analysis:[
+        {name:'Blockbuster', url:'https://smart-bowling.github.io/ANALYSIS-BB/', key:'blockbuster'},
+        {name:'Skymall', url:'https://smart-bowling.github.io/ANALYSIS-SM/', key:'skymall'}
+    ]
 };
+
+// Текущая активная карточка
+let activeCard = null;
 
 function handleCredentialResponse(response) {
     const payload = parseJwt(response.credential);
@@ -287,12 +365,10 @@ function loginUser(payload) {
     document.getElementById('user-info').style.display = 'flex';
     document.getElementById('main-content').style.display = 'block';
     
-    // Обновляем UI
     document.getElementById('user-pic').src = payload.picture;
     document.getElementById('user-name').textContent = payload.name;
     document.getElementById('user-email').textContent = payload.email;
     
-    // Сохраняем в память браузера
     localStorage.setItem('userLoggedIn', 'true');
     localStorage.setItem('userEmail', payload.email.toLowerCase());
     localStorage.setItem('userName', payload.name);
@@ -301,29 +377,74 @@ function loginUser(payload) {
     applyPermissions(payload.email.toLowerCase());
 }
 
-function handleAction(type) {
+function handleAction(type, buttonElement) {
     const email = localStorage.getItem('userEmail');
     const p = userPermissions[email];
     const available = linksMap[type].filter(item => p[item.key] && p[item.key][type]);
+    
     if (available.length === 1) {
-        window.location.href = available[0].url; // Открываем в текущей вкладке
+        window.location.href = available[0].url;
     } else if (available.length > 1) {
-        const drop = document.getElementById(`drop-${type}`);
-        const isActive = drop.classList.contains('active');
-        document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('active'));
-        if (!isActive) {
-            drop.innerHTML = available.map(link => 
-                `<a href="${link.url}" class="action-link">${link.name} <i class="fas fa-chevron-right" style="font-size:10px; opacity:0.3"></i></a>`
-            ).join('');
-            drop.classList.add('active');
+        const card = buttonElement.closest('.action-card');
+        const bubblesContainer = document.getElementById(`bubbles-${type}`);
+        
+        // Если кликнули на ту же карточку - закрываем
+        if (activeCard === card) {
+            closeAllBubbles();
+            return;
         }
+        
+        // Закрываем предыдущие
+        closeAllBubbles();
+        
+        // Создаем баблы
+        createBubbles(bubblesContainer, available, type);
+        
+        // Добавляем эффект пульсации
+        card.classList.add('pulse');
+        setTimeout(() => card.classList.remove('pulse'), 1000);
+        
+        activeCard = card;
     }
 }
+
+function createBubbles(container, links, type) {
+    container.innerHTML = '';
+    
+    links.forEach((link, index) => {
+        const bubble = document.createElement('a');
+        bubble.href = link.url;
+        bubble.className = `club-bubble pos-${index + 1}`;
+        bubble.innerHTML = `${link.name} <i class="fas fa-arrow-right"></i>`;
+        
+        // Добавляем небольшую задержку для каждой кнопки
+        setTimeout(() => {
+            bubble.classList.add('active');
+        }, index * 100);
+        
+        container.appendChild(bubble);
+    });
+}
+
+function closeAllBubbles() {
+    document.querySelectorAll('.club-bubbles').forEach(container => {
+        container.innerHTML = '';
+    });
+    activeCard = null;
+}
+
+// Закрываем баблы при клике вне их
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.action-card')) {
+        closeAllBubbles();
+    }
+});
 
 function applyPermissions(email) {
     const p = userPermissions[email];
     document.getElementById('manuals-btn').classList.toggle('disabled', !p.manuals);
     document.getElementById('store-btn').classList.toggle('disabled', !p.store);
+    
     Object.keys(linksMap).forEach(type => {
         const hasAccess = linksMap[type].some(item => p[item.key] && p[item.key][type]);
         document.getElementById(`card-${type}`).classList.toggle('disabled', !hasAccess);
@@ -350,7 +471,6 @@ window.onload = () => {
             document.getElementById('main-content').style.display = 'block';
             document.getElementById('user-info').style.display = 'flex';
             
-            // Восстанавливаем данные из localStorage
             document.getElementById('user-name').textContent = name || 'User';
             document.getElementById('user-email').textContent = email;
             if (pic) document.getElementById('user-pic').src = pic;
