@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
@@ -24,7 +24,7 @@
             --text-muted: #64748b;
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
             --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
-            --transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             --card-bg: #ffffff;
         }
 
@@ -113,16 +113,21 @@
         .action-card {
             background: var(--card-bg);
             border-radius: 20px;
-            overflow: visible;
+            overflow: hidden;
             box-shadow: var(--shadow);
-            transition: var(--transition);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             position: relative;
             border: none;
+            cursor: pointer;
         }
 
         .action-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             box-shadow: var(--shadow-hover);
+        }
+
+        .action-card:active {
+            transform: translateY(-1px);
         }
 
         .action-btn {
@@ -142,13 +147,14 @@
             border-radius: 20px;
             position: relative;
             z-index: 2;
+            transition: background-color 0.2s ease;
         }
 
-        /* ИЗМЕНЕНО: Иконки на больших карточках теперь #1f2937 */
         .action-btn i {
             font-size: 26px;
             color: #1f2937;
-            transition: var(--transition);
+            transition: color 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
         }
 
         .action-btn span {
@@ -158,79 +164,102 @@
             letter-spacing: 0.5px;
             text-align: center;
             color: var(--text-dark);
+            pointer-events: none;
         }
 
-        /* ИЗМЕНЕНО: При наведении иконки становятся акцентным цветом */
         .action-card:hover .action-btn i {
             color: var(--accent);
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
-        /* ===== Bottom Sheet ===== */
-        .sheet-overlay {
+        /* ===== MODAL WINDOW (вместо bottom sheet) ===== */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(4px);
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
             z-index: 100;
         }
 
-        .sheet-overlay.active {
+        .modal-overlay.active {
             opacity: 1;
             visibility: visible;
         }
 
-        .bottom-sheet {
+        .modal {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
             background: var(--card-bg);
-            border-radius: 28px 28px 0 0;
-            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.3);
-            transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
             z-index: 200;
-            max-height: 70vh;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
             overflow-y: auto;
-            padding: 20px;
+            padding: 24px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
         }
 
-        .bottom-sheet.active {
-            transform: translateY(0);
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
         }
 
-        .sheet-handle {
-            width: 40px;
-            height: 5px;
-            background: var(--text-muted);
-            border-radius: 10px;
-            margin: 0 auto 20px auto;
-            opacity: 0.5;
-        }
-
-        .sheet-title {
-            font-size: 18px;
-            font-weight: 700;
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
-            color: var(--text-dark);
-            text-align: center;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
         }
 
-        .sheet-clubs-list {
+        .modal-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-muted);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+        }
+
+        .modal-clubs-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
+            gap: 10px;
         }
 
-        .club-sheet-btn {
+        .club-modal-btn {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -240,54 +269,36 @@
             text-decoration: none;
             color: var(--text-dark);
             font-weight: 600;
-            transition: var(--transition);
-            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
         }
 
-        .club-sheet-btn:hover {
+        .club-modal-btn:hover {
             background: #1f2937;
             color: white;
             border-color: #1f2937;
-            transform: scale(1.02);
+            transform: translateX(5px);
         }
 
-        .club-sheet-btn i {
+        .club-modal-btn i {
             color: #1f2937;
             font-size: 14px;
-            transition: var(--transition);
+            transition: color 0.2s ease;
         }
 
-        .club-sheet-btn:hover i {
+        .club-modal-btn:hover i {
             color: white;
-        }
-
-        .close-sheet-btn {
-            width: 100%;
-            padding: 16px;
-            background: none;
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            font-weight: 700;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: var(--transition);
-            margin-top: 10px;
-        }
-
-        .close-sheet-btn:hover {
-            background: #f1f5f9;
-            border-color: var(--text-muted);
         }
 
         /* Эффект пульсации при активации */
         @keyframes pulse {
             0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(225, 29, 72, 0); }
+            70% { box-shadow: 0 0 0 10px rgba(225, 29, 72, 0); }
             100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
         }
 
         .action-card.pulse {
-            animation: pulse 1s ease;
+            animation: pulse 0.5s ease;
         }
 
         .disabled { 
@@ -303,7 +314,7 @@
         /* Мобильная адаптация */
         @media (max-width: 768px) {
             .action-grid {
-                grid-template-columns: 1fr 1fr !important;
+                grid-template-columns: repeat(2, 1fr);
                 gap: 12px;
             }
             .action-btn { padding: 10px; }
@@ -388,13 +399,14 @@
     </div>
 </div>
 
-<!-- Bottom Sheet для выбора клуба -->
-<div class="sheet-overlay" id="sheetOverlay"></div>
-<div class="bottom-sheet" id="clubSheet">
-    <div class="sheet-handle"></div>
-    <div class="sheet-title" id="sheetTitle">Выберите клуб</div>
-    <div class="sheet-clubs-list" id="sheetClubsList"></div>
-    <button class="close-sheet-btn" onclick="closeClubSheet()">Закрыть</button>
+<!-- Модальное окно для выбора клуба (вместо bottom sheet) -->
+<div class="modal-overlay" id="modalOverlay"></div>
+<div class="modal" id="clubModal">
+    <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">Выберите клуб</h3>
+        <button class="modal-close" onclick="closeClubModal()">&times;</button>
+    </div>
+    <div class="modal-clubs-list" id="modalClubsList"></div>
 </div>
 
 <script>
@@ -465,7 +477,7 @@ function loginUser(payload) {
     applyPermissions(payload.email.toLowerCase());
 }
 
-// Открытие Bottom Sheet
+// Открытие модального окна
 function handleAction(type, buttonElement) {
     const email = localStorage.getItem('userEmail');
     const p = userPermissions[email];
@@ -475,24 +487,24 @@ function handleAction(type, buttonElement) {
         // Если только один доступный клуб - переходим сразу
         window.location.href = available[0].url;
     } else if (available.length > 1) {
-        // Если несколько - показываем Bottom Sheet
+        // Если несколько - показываем модальное окно
         const card = buttonElement.closest('.action-card');
         
         // Добавляем эффект пульсации
         card.classList.add('pulse');
-        setTimeout(() => card.classList.remove('pulse'), 1000);
+        setTimeout(() => card.classList.remove('pulse'), 500);
         
-        // Заполняем и показываем Bottom Sheet
-        showClubSheet(type, available);
+        // Заполняем и показываем модальное окно
+        showClubModal(type, available);
     }
 }
 
-// Показать Bottom Sheet
-function showClubSheet(type, clubs) {
-    const sheet = document.getElementById('clubSheet');
-    const overlay = document.getElementById('sheetOverlay');
-    const title = document.getElementById('sheetTitle');
-    const listContainer = document.getElementById('sheetClubsList');
+// Показать модальное окно
+function showClubModal(type, clubs) {
+    const modal = document.getElementById('clubModal');
+    const overlay = document.getElementById('modalOverlay');
+    const title = document.getElementById('modalTitle');
+    const listContainer = document.getElementById('modalClubsList');
     
     // Устанавливаем заголовок
     let typeName = {
@@ -508,25 +520,25 @@ function showClubSheet(type, clubs) {
     clubs.forEach(club => {
         const btn = document.createElement('a');
         btn.href = club.url;
-        btn.className = 'club-sheet-btn';
+        btn.className = 'club-modal-btn';
         btn.innerHTML = `${club.name} <i class="fas fa-arrow-right"></i>`;
         listContainer.appendChild(btn);
     });
     
-    // Показываем sheet и overlay
-    sheet.classList.add('active');
+    // Показываем модальное окно и overlay
+    modal.classList.add('active');
     overlay.classList.add('active');
     
     // Блокируем прокрутку основного контента
     document.body.style.overflow = 'hidden';
 }
 
-// Закрыть Bottom Sheet
-function closeClubSheet() {
-    const sheet = document.getElementById('clubSheet');
-    const overlay = document.getElementById('sheetOverlay');
+// Закрыть модальное окно
+function closeClubModal() {
+    const modal = document.getElementById('clubModal');
+    const overlay = document.getElementById('modalOverlay');
     
-    sheet.classList.remove('active');
+    modal.classList.remove('active');
     overlay.classList.remove('active');
     
     // Возвращаем прокрутку
@@ -560,7 +572,14 @@ function signOut() {
 }
 
 // Закрытие по клику на overlay
-document.getElementById('sheetOverlay').addEventListener('click', closeClubSheet);
+document.getElementById('modalOverlay').addEventListener('click', closeClubModal);
+
+// Закрытие по клавише Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeClubModal();
+    }
+});
 
 // Проверяем, загружен ли Google API
 window.onload = function() {
