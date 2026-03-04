@@ -302,6 +302,20 @@
             color: var(--text-muted);
         }
 
+        .loading-spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(225, 29, 72, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .action-grid {
                 grid-template-columns: 1fr 1fr !important;
@@ -406,7 +420,7 @@
 </div>
 
 <script>
-// Конфигурация - ЗАМЕНИТЕ НА ВАШ URL!
+// Конфигурация - ВСТАВЬТЕ ВАШ URL СЮДА
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwwn-sgGtWe4_6pztX6Ys6c2y3dYpQKyHpMd-PCKXlBEMG_uMwmtRet296Y0dXZzcSQjg/exec';
 
 // Глобальные переменные
@@ -421,7 +435,7 @@ function handleCredentialResponse(response) {
         const payload = parseJwt(response.credential);
         console.log("User email:", payload.email);
         
-        // Сохраняем пользователя временно
+        // Сохраняем пользователя
         currentUser = {
             email: payload.email.toLowerCase().trim(),
             name: payload.name,
@@ -431,7 +445,7 @@ function handleCredentialResponse(response) {
         // Показываем индикатор загрузки
         showLoading(true);
         
-        // Проверяем email через Google Apps Script
+        // Проверяем email через скрипт
         checkEmailAccess(currentUser.email);
         
     } catch (e) {
@@ -441,68 +455,81 @@ function handleCredentialResponse(response) {
     }
 }
 
-// Проверка email через скрипт
+// Проверка email через скрипт с использованием iframe (обходит CORS)
 function checkEmailAccess(email) {
-    // Добавляем timestamp для избежания кэширования
-    const timestamp = new Date().getTime();
-    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+    // Создаем скрытый iframe для отправки запроса
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.id = 'authIframe';
     
-    // Создаем URL для JSONP запроса
-    const url = `${SCRIPT_URL}?action=checkEmail&email=${encodeURIComponent(email)}&callback=${callbackName}&timestamp=${timestamp}`;
-    
-    console.log('Checking email with JSONP:', url);
-    
-    // Создаем функцию callback
-    window[callbackName] = function(data) {
-        console.log('JSONP Response received:', data);
-        
-        // Очищаем
-        delete window[callbackName];
-        const script = document.getElementById('jsonpScript');
-        if (script) script.remove();
-        
-        // Обрабатываем ответ
-        if (data && data.access === true) {
-            console.log('Access granted, links:', data.links);
-            userLinks = data.links || [];
-            loginUser(currentUser, userLinks);
-        } else {
-            // Доступ запрещен
+    // Добавляем обработчик загрузки iframe
+    iframe.onload = function() {
+        try {
+            // Пытаемся получить данные из iframe
+            const iframeContent = iframe.contentDocument.body.innerText;
+            console.log('Iframe content:', iframeContent);
+            
+            try {
+                // Пробуем распарсить как JSON
+                const data = JSON.parse(iframeContent);
+                handleAuthResponse(data);
+            } catch (e) {
+                // Если не JSON, возможно это HTML с ошибкой
+                console.error('Not JSON response:', iframeContent.substring(0, 200));
+                
+                // Пробуем найти JSON в тексте
+                const jsonMatch = iframeContent.match(/\{.*\}/);
+                if (jsonMatch) {
+                    try {
+                        const data = JSON.parse(jsonMatch[0]);
+                        handleAuthResponse(data);
+                        return;
+                    } catch (e2) {}
+                }
+                
+                showLoading(false);
+                alert('Ошибка сервера. Получен неверный ответ.');
+            }
+        } catch (e) {
+            console.error('Error reading iframe:', e);
             showLoading(false);
-            const message = data ? data.message : 'Доступ запрещен';
-            alert('Доступ запрещен: ' + message);
-            console.log('Unauthorized email:', email, 'Response:', data);
+            alert('Ошибка доступа к серверу. Проверьте URL скрипта.');
         }
+        
+        // Удаляем iframe после использования
+        setTimeout(() => {
+            if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+        }, 1000);
     };
     
-    // Создаем и добавляем скрипт
-    const script = document.createElement('script');
-    script.id = 'jsonpScript';
-    script.src = url;
+    // Формируем URL с параметрами
+    const timestamp = new Date().getTime();
+    iframe.src = `${SCRIPT_URL}?action=checkEmail&email=${encodeURIComponent(email)}&timestamp=${timestamp}`;
     
-    // Обработка ошибок загрузки скрипта
-    script.onerror = function() {
-        console.error('Failed to load script:', url);
-        if (window[callbackName]) {
-            window[callbackName]({ 
-                access: false, 
-                message: 'Не удалось подключиться к серверу. Проверьте URL скрипта.' 
-            });
-        }
-    };
-    
-    document.body.appendChild(script);
+    document.body.appendChild(iframe);
     
     // Таймаут на случай ошибки
     setTimeout(() => {
-        if (window[callbackName]) {
-            console.log('JSONP timeout');
-            window[callbackName]({ 
-                access: false, 
-                message: 'Таймаут запроса. Сервер не отвечает.' 
-            });
+        if (document.getElementById('authIframe')) {
+            showLoading(false);
+            alert('Таймаут запроса. Сервер не отвечает.');
+            if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
         }
     }, 10000);
+}
+
+// Обработка ответа аутентификации
+function handleAuthResponse(data) {
+    console.log('Auth response:', data);
+    
+    if (data && data.access === true) {
+        userLinks = data.links || [];
+        loginUser(currentUser, userLinks);
+    } else {
+        showLoading(false);
+        const message = data ? data.message : 'Доступ запрещен';
+        alert('Доступ запрещен: ' + message);
+    }
 }
 
 // Функция входа пользователя
@@ -519,7 +546,7 @@ function loginUser(user, links) {
     document.getElementById('user-name').textContent = user.name;
     document.getElementById('user-email').textContent = user.email;
     
-    // Сохраняем в localStorage для восстановления сессии
+    // Сохраняем в localStorage
     localStorage.setItem('userLoggedIn', 'true');
     localStorage.setItem('userEmail', user.email);
     localStorage.setItem('userName', user.name);
@@ -537,15 +564,23 @@ function loginUser(user, links) {
 function showLoading(show) {
     const loginDiv = document.getElementById('login');
     if (show) {
-        // Сохраняем оригинальное содержимое
+        // Сохраняем оригинал
         if (!loginDiv.hasAttribute('data-original')) {
             loginDiv.setAttribute('data-original', loginDiv.innerHTML);
         }
-        loginDiv.innerHTML = '<div style="padding: 30px; text-align: center;"><i class="fas fa-spinner fa-spin" style="font-size: 30px; color: var(--accent); margin-bottom: 15px;"></i><br><span style="color: var(--text-muted);">Проверка доступа...</span></div>';
+        loginDiv.innerHTML = '<div style="padding: 30px; text-align: center;"><div class="loading-spinner"></div><br><span style="color: var(--text-muted); margin-top: 10px; display: block;">Проверка доступа...</span></div>';
     } else {
         // Восстанавливаем, если нужно
         if (loginDiv.getAttribute('data-original') && document.getElementById('login').style.display !== 'none') {
             loginDiv.innerHTML = loginDiv.getAttribute('data-original');
+            
+            // Переинициализируем кнопку Google
+            if (window.google && google.accounts && google.accounts.id) {
+                google.accounts.id.renderButton(
+                    document.querySelector('.g_id_signin'),
+                    { type: 'standard', shape: 'pill', theme: 'outline', text: 'signin_with', size: 'large', logo_alignment: 'left' }
+                );
+            }
         }
     }
 }
@@ -556,7 +591,7 @@ function applyPermissionsFromLinks(links) {
     document.getElementById('manuals-btn').classList.remove('disabled');
     document.getElementById('store-btn').classList.remove('disabled');
     
-    // Определяем доступные разделы на основе ссылок
+    // Определяем доступные разделы
     const hasParts = links.some(link => 
         link.url.toLowerCase().includes('parts') || 
         link.url.toLowerCase().includes('kh') || 
@@ -579,20 +614,16 @@ function applyPermissionsFromLinks(links) {
         link.url.toLowerCase().includes('analysis')
     );
     
-    console.log('Permissions:', { hasParts, hasMaintenance, hasFps, hasAnalysis });
-    
     document.getElementById('card-parts').classList.toggle('disabled', !hasParts);
     document.getElementById('card-maintenance').classList.toggle('disabled', !hasMaintenance);
     document.getElementById('card-fps').classList.toggle('disabled', !hasFps);
     document.getElementById('card-analysis').classList.toggle('disabled', !hasAnalysis);
 }
 
-// Обработка действия (нажатие на карточку)
+// Обработка действия
 function handleAction(type, buttonElement) {
-    // Получаем ссылки из localStorage
     const links = JSON.parse(localStorage.getItem('userLinks') || '[]');
     
-    // Фильтруем ссылки по типу
     const availableLinks = links.filter(link => {
         const url = link.url.toLowerCase();
         switch(type) {
@@ -615,17 +646,11 @@ function handleAction(type, buttonElement) {
     }
     
     if (availableLinks.length === 1) {
-        // Если только один доступный ресурс - переходим сразу
         window.location.href = availableLinks[0].url;
-    } else if (availableLinks.length > 1) {
-        // Если несколько - показываем Bottom Sheet
+    } else {
         const card = buttonElement.closest('.action-card');
-        
-        // Добавляем эффект пульсации
         card.classList.add('pulse');
         setTimeout(() => card.classList.remove('pulse'), 1000);
-        
-        // Заполняем и показываем Bottom Sheet
         showClubSheet(type, availableLinks);
     }
 }
@@ -637,7 +662,6 @@ function showClubSheet(type, clubs) {
     const title = document.getElementById('sheetTitle');
     const listContainer = document.getElementById('sheetClubsList');
     
-    // Устанавливаем заголовок
     let typeName = {
         parts: 'Запчасти',
         maintenance: 'Обслуживание',
@@ -647,7 +671,6 @@ function showClubSheet(type, clubs) {
     
     title.textContent = `Выберите ресурс: ${typeName}`;
     
-    // Создаем кнопки для каждого ресурса
     listContainer.innerHTML = '';
     clubs.forEach((club, index) => {
         const btn = document.createElement('a');
@@ -659,27 +682,19 @@ function showClubSheet(type, clubs) {
         listContainer.appendChild(btn);
     });
     
-    // Показываем sheet и overlay
     sheet.classList.add('active');
     overlay.classList.add('active');
-    
-    // Блокируем прокрутку
     document.body.style.overflow = 'hidden';
 }
 
 // Закрыть Bottom Sheet
 function closeClubSheet() {
-    const sheet = document.getElementById('clubSheet');
-    const overlay = document.getElementById('sheetOverlay');
-    
-    sheet.classList.remove('active');
-    overlay.classList.remove('active');
-    
-    // Возвращаем прокрутку
+    document.getElementById('clubSheet').classList.remove('active');
+    document.getElementById('sheetOverlay').classList.remove('active');
     document.body.style.overflow = '';
 }
 
-// Парсинг JWT токена
+// Парсинг JWT
 function parseJwt(token) {
     try {
         const base64Url = token.split('.')[1];
@@ -694,19 +709,15 @@ function parseJwt(token) {
     }
 }
 
-// Выход из системы
+// Выход
 function signOut() { 
-    console.log("Signing out");
     localStorage.clear();
     sessionStorage.clear();
     location.reload(); 
 }
 
-// Проверка сессии при загрузке
+// Проверка сессии
 window.addEventListener('load', function() {
-    console.log("Page loaded, checking session...");
-    
-    // Проверяем сохраненную сессию
     const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
     const savedEmail = localStorage.getItem('userEmail');
     const savedName = localStorage.getItem('userName');
@@ -714,12 +725,9 @@ window.addEventListener('load', function() {
     const savedLinks = localStorage.getItem('userLinks');
     
     if (isLoggedIn && savedEmail && savedLinks) {
-        console.log("Restoring session for:", savedEmail);
-        
         try {
             const links = JSON.parse(savedLinks);
             
-            // Восстанавливаем интерфейс
             document.getElementById('login').style.display = 'none';
             document.getElementById('user-info').style.display = 'flex';
             document.getElementById('main-content').style.display = 'block';
@@ -728,20 +736,11 @@ window.addEventListener('load', function() {
             document.getElementById('user-name').textContent = savedName || 'User';
             document.getElementById('user-email').textContent = savedEmail;
             
-            // Применяем разрешения
             applyPermissionsFromLinks(links);
-            
-            // Сохраняем ссылки в глобальной переменной
             userLinks = links;
-            
-            console.log("Session restored successfully");
         } catch (e) {
-            console.error("Error restoring session:", e);
             signOut();
         }
-    } else {
-        console.log("No valid session found");
-        document.getElementById('login').style.display = 'block';
     }
 });
 
