@@ -243,6 +243,7 @@
             transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             border: 1px solid #e2e8f0;
             transform: none !important;
+            cursor: pointer;
         }
 
         .club-sheet-btn:hover {
@@ -374,16 +375,16 @@
     <div class="main-content" id="main-content" style="display:none; width: 100%;">
         <div class="action-grid">
             <div class="action-card" id="manuals-btn">
-                <a href="https://smart-bowling.github.io/MANUALS-SMART/" class="action-btn">
+                <button class="action-btn" onclick="handleGeneralLink('manuals', 'https://smart-bowling.github.io/MANUALS-SMART/')">
                     <i class="fas fa-book-open"></i>
                     <span>Manuals</span>
-                </a>
+                </button>
             </div>
             <div class="action-card" id="store-btn">
-                <a href="https://smart-bowling.github.io/PARTS-STORE/" class="action-btn">
+                <button class="action-btn" onclick="handleGeneralLink('store', 'https://smart-bowling.github.io/PARTS-STORE/')">
                     <i class="fas fa-bag-shopping"></i>
                     <span>Store</span>
-                </a>
+                </button>
             </div>
             <div class="action-card" id="card-parts">
                 <button class="action-btn" onclick="handleAction('parts', this)">
@@ -445,7 +446,11 @@ const LINK_PATTERNS = {
     'https://smart-bowling.github.io/PARTS-SKYMALL/': { club: 'skymall', type: 'parts' },
     'https://smart-bowling.github.io/SMB-SKYMALL/': { club: 'skymall', type: 'maintenance' },
     'https://smart-bowling.github.io/PS-STOP-SKYMALL/': { club: 'skymall', type: 'fps' },
-    'https://smart-bowling.github.io/ANALYSIS-SM/': { club: 'skymall', type: 'analysis' }
+    'https://smart-bowling.github.io/ANALYSIS-SM/': { club: 'skymall', type: 'analysis' },
+    
+    // Общие ссылки
+    'https://smart-bowling.github.io/MANUALS-SMART/': { type: 'manuals' },
+    'https://smart-bowling.github.io/PARTS-STORE/': { type: 'store' }
 };
 
 // Карта ссылок для отображения в Bottom Sheet
@@ -560,8 +565,8 @@ async function checkEmailInSheet(email) {
         if (foundRow) {
             // Создаем структуру разрешений
             const permissions = {
-                manuals: true,
-                store: true,
+                manuals: false,
+                store: false,
                 luckyStrike: { parts: false, maintenance: false, fps: false, analysis: false },
                 blockbuster: { parts: false, maintenance: false, fps: false, analysis: false },
                 skymall: { parts: false, maintenance: false, fps: false, analysis: false }
@@ -572,14 +577,23 @@ async function checkEmailInSheet(email) {
                 const cellValue = foundRow[j];
                 if (!cellValue || cellValue.trim() === '') continue;
                 
-                const cleanUrl = cellValue.trim().split('?')[0].split('#')[0]; // Убираем параметры и якоря
+                const cleanUrl = cellValue.trim().split('?')[0].split('#')[0];
                 console.log(`Scanning URL: ${cleanUrl}`);
                 
                 // Проверяем точное соответствие с паттернами
                 if (LINK_PATTERNS[cleanUrl]) {
                     const match = LINK_PATTERNS[cleanUrl];
-                    permissions[match.club][match.type] = true;
-                    console.log(`✅ Matched: ${match.club} - ${match.type}`);
+                    
+                    if (match.type === 'manuals') {
+                        permissions.manuals = true;
+                        console.log(`✅ Matched: manuals`);
+                    } else if (match.type === 'store') {
+                        permissions.store = true;
+                        console.log(`✅ Matched: store`);
+                    } else if (match.club) {
+                        permissions[match.club][match.type] = true;
+                        console.log(`✅ Matched: ${match.club} - ${match.type}`);
+                    }
                 } else {
                     console.log(`❌ No exact match for: ${cleanUrl}`);
                 }
@@ -671,7 +685,22 @@ function applyPermissions(email) {
     });
 }
 
-// Обработка действия
+// Обработка общих ссылок (Manuals и Store)
+function handleGeneralLink(type, url) {
+    const email = localStorage.getItem('userEmail');
+    const p = userPermissions[email];
+    
+    if (!p) {
+        alert('Ошибка: разрешения не найдены');
+        return;
+    }
+    
+    if ((type === 'manuals' && p.manuals) || (type === 'store' && p.store)) {
+        window.location.href = url; // Открываем в той же вкладке
+    }
+}
+
+// Обработка действия для Parts, Maintenance, FPS, Analysis
 function handleAction(type, buttonElement) {
     const email = localStorage.getItem('userEmail');
     const p = userPermissions[email];
@@ -689,7 +718,7 @@ function handleAction(type, buttonElement) {
     }
     
     if (available.length === 1) {
-        window.location.href = available[0].url;
+        window.location.href = available[0].url; // Открываем в той же вкладке
     } else if (available.length > 1) {
         const card = buttonElement.closest('.action-card');
         
@@ -718,12 +747,12 @@ function showClubSheet(type, clubs) {
     
     listContainer.innerHTML = '';
     clubs.forEach(club => {
-        const btn = document.createElement('a');
-        btn.href = club.url;
+        const btn = document.createElement('button');
         btn.className = 'club-sheet-btn';
         btn.innerHTML = `${club.name} <i class="fas fa-arrow-right"></i>`;
-        btn.target = '_blank';
-        btn.rel = 'noopener noreferrer';
+        btn.onclick = function() {
+            window.location.href = club.url; // Открываем в той же вкладке
+        };
         listContainer.appendChild(btn);
     });
     
