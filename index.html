@@ -52,6 +52,7 @@
             max-width: 800px;
         }
 
+        /* ===== AUTH BLOCKS ===== */
         #login, #user-info, #access-denied {
             background: var(--card-bg);
             padding: 25px;
@@ -102,6 +103,7 @@
 
         #logout-btn:hover { background: var(--accent); color: white; }
 
+        /* ===== ACTION GRID ===== */
         .action-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -163,6 +165,7 @@
             transform: scale(1.1);
         }
 
+        /* ===== Bottom Sheet ===== */
         .sheet-overlay {
             position: fixed;
             top: 0;
@@ -219,6 +222,7 @@
             text-align: center;
         }
 
+        /* Контейнер для списка клубов */
         .sheet-clubs-list {
             display: flex;
             flex-direction: column;
@@ -242,6 +246,7 @@
             font-weight: 600;
             transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
             border: 1px solid #e2e8f0;
+            transform: none !important;
         }
 
         .club-sheet-btn:hover {
@@ -249,6 +254,7 @@
             color: white;
             border-color: #1f2937;
             box-shadow: 0 8px 15px -6px rgba(0, 0, 0, 0.3);
+            transform: none !important;
         }
 
         .club-sheet-btn i {
@@ -411,24 +417,49 @@
     </div>
 </div>
 
-<!-- Bottom Sheet для выбора ресурса -->
+<!-- Bottom Sheet для выбора клуба -->
 <div class="sheet-overlay" id="sheetOverlay"></div>
 <div class="bottom-sheet" id="clubSheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-title" id="sheetTitle">Выберите ресурс</div>
+    <div class="sheet-title" id="sheetTitle">Выберите клуб</div>
     <div class="sheet-clubs-list" id="sheetClubsList"></div>
     <button class="close-sheet-btn" onclick="closeClubSheet()">Закрыть</button>
 </div>
 
 <script>
-// Конфигурация - ВАШИ ДАННЫЕ
+// Конфигурация
 const SPREADSHEET_ID = '1-yiVdZYa6wJdupTiuiHvI_ht3Vu73RUjyCehZqs2cJ4';
-const SHEET_NAME = '1'; 
-const API_KEY = 'AIzaSyAXL0Hsfxy-g-AgYhnivj4x9gCB2rrtF-0'; // Ваш API ключ
+const SHEET_NAME = 'Лист1'; 
+const API_KEY = 'AIzaSyAXL0Hsfxy-g-AgYhnivj4x9gCB2rrtF-0';
+
+// Структура разрешений пользователей (будет заполняться из таблицы)
+let userPermissions = {};
+
+// Карта ссылок для каждого раздела
+const linksMap = {
+    parts: [
+        {name:'Lucky Strike KH', url:'https://smart-bowling.github.io/PARTS-KH/', key:'luckyStrike'},
+        {name:'Blockbuster', url:'https://smart-bowling.github.io/PARTS-BB/', key:'blockbuster'},
+        {name:'Skymall', url:'https://smart-bowling.github.io/PARTS-SKYMALL/', key:'skymall'}
+    ],
+    maintenance: [
+        {name:'Lucky Strike KH', url:'https://smart-bowling.github.io/SMB-LS-KH/', key:'luckyStrike'},
+        {name:'Blockbuster', url:'https://smart-bowling.github.io/SMB-BB/', key:'blockbuster'},
+        {name:'Skymall', url:'https://smart-bowling.github.io/SMB-SKYMALL/', key:'skymall'}
+    ],
+    fps: [
+        {name:'Lucky Strike KH', url:'https://smart-bowling.github.io/PS-STOP-KH/', key:'luckyStrike'},
+        {name:'Blockbuster', url:'https://smart-bowling.github.io/PS-STOP-BB/', key:'blockbuster'},
+        {name:'Skymall', url:'https://smart-bowling.github.io/PS-STOP-SKYMALL/', key:'skymall'}
+    ],
+    analysis: [
+        {name:'Blockbuster', url:'https://smart-bowling.github.io/ANALYSIS-BB/', key:'blockbuster'},
+        {name:'Skymall', url:'https://smart-bowling.github.io/ANALYSIS-SM/', key:'skymall'}
+    ]
+};
 
 // Глобальные переменные
 let currentUser = null;
-let userLinks = [];
 
 // Загружаем Google API
 function loadSheetsAPI() {
@@ -506,7 +537,7 @@ async function checkEmailInSheet(email) {
         let foundRow = null;
         
         for (let i = 0; i < rows.length; i++) {
-            if (!rows[i][0]) continue; // Пропускаем пустые строки
+            if (!rows[i][0]) continue;
             
             const rowEmail = rows[i][0].toLowerCase().trim();
             if (rowEmail === email) {
@@ -516,29 +547,48 @@ async function checkEmailInSheet(email) {
         }
         
         if (foundRow) {
-            // Извлекаем ссылки (начиная с колонки B)
-            const links = [];
+            // Создаем структуру разрешений на основе найденных ссылок
+            const permissions = {
+                manuals: true,
+                store: true,
+                luckyStrike: { parts: false, maintenance: false, fps: false, analysis: false },
+                blockbuster: { parts: false, maintenance: false, fps: false, analysis: false },
+                skymall: { parts: false, maintenance: false, fps: false, analysis: false }
+            };
+            
+            // Анализируем ссылки (начиная с колонки B)
             for (let j = 1; j < foundRow.length; j++) {
                 if (foundRow[j] && foundRow[j].trim() !== '') {
-                    let name = `Ресурс ${j}`;
                     const url = foundRow[j].toLowerCase();
                     
-                    if (url.includes('parts')) name = 'Запчасти';
-                    else if (url.includes('smb') || url.includes('maintenance')) name = 'Обслуживание';
-                    else if (url.includes('ps-stop') || url.includes('fps')) name = 'FPS';
-                    else if (url.includes('analysis')) name = 'Аналитика';
-                    else if (url.includes('manual')) name = 'Инструкции';
-                    else if (url.includes('store')) name = 'Магазин';
+                    // Определяем клуб и тип
+                    if (url.includes('kh') || url.includes('lucky')) {
+                        if (url.includes('parts')) permissions.luckyStrike.parts = true;
+                        if (url.includes('smb')) permissions.luckyStrike.maintenance = true;
+                        if (url.includes('ps-stop') || url.includes('fps')) permissions.luckyStrike.fps = true;
+                    }
                     
-                    links.push({
-                        url: foundRow[j].trim(),
-                        name: name
-                    });
+                    if (url.includes('bb') || url.includes('blockbuster')) {
+                        if (url.includes('parts')) permissions.blockbuster.parts = true;
+                        if (url.includes('smb')) permissions.blockbuster.maintenance = true;
+                        if (url.includes('ps-stop') || url.includes('fps')) permissions.blockbuster.fps = true;
+                        if (url.includes('analysis')) permissions.blockbuster.analysis = true;
+                    }
+                    
+                    if (url.includes('sky') || url.includes('skymall') || url.includes('sm')) {
+                        if (url.includes('parts')) permissions.skymall.parts = true;
+                        if (url.includes('smb')) permissions.skymall.maintenance = true;
+                        if (url.includes('ps-stop') || url.includes('fps')) permissions.skymall.fps = true;
+                        if (url.includes('analysis')) permissions.skymall.analysis = true;
+                    }
                 }
             }
             
-            userLinks = links;
-            loginUser(currentUser, links);
+            // Сохраняем разрешения
+            userPermissions[email] = permissions;
+            
+            // Выполняем вход
+            loginUser(currentUser);
         } else {
             showLoading(false);
             alert('Доступ запрещен: Ваш email не найден в таблице');
@@ -557,24 +607,23 @@ async function checkEmailInSheet(email) {
 }
 
 // Функция входа пользователя
-function loginUser(user, links) {
-    console.log("Logging in user:", user.email);
+function loginUser(payload) {
+    console.log("Logging in user:", payload.email);
     
     document.getElementById('login').style.display = 'none';
     document.getElementById('user-info').style.display = 'flex';
     document.getElementById('main-content').style.display = 'block';
     
-    document.getElementById('user-pic').src = user.picture;
-    document.getElementById('user-name').textContent = user.name;
-    document.getElementById('user-email').textContent = user.email;
+    document.getElementById('user-pic').src = payload.picture;
+    document.getElementById('user-name').textContent = payload.name;
+    document.getElementById('user-email').textContent = payload.email;
     
     localStorage.setItem('userLoggedIn', 'true');
-    localStorage.setItem('userEmail', user.email);
-    localStorage.setItem('userName', user.name);
-    localStorage.setItem('userPic', user.picture);
-    localStorage.setItem('userLinks', JSON.stringify(links));
+    localStorage.setItem('userEmail', payload.email.toLowerCase());
+    localStorage.setItem('userName', payload.name);
+    localStorage.setItem('userPic', payload.picture);
     
-    applyPermissionsFromLinks(links);
+    applyPermissions(payload.email.toLowerCase());
     showLoading(false);
 }
 
@@ -590,7 +639,6 @@ function showLoading(show) {
         if (loginDiv.getAttribute('data-original') && document.getElementById('login').style.display !== 'none') {
             loginDiv.innerHTML = loginDiv.getAttribute('data-original');
             
-            // Переинициализируем кнопку Google
             if (window.google && google.accounts && google.accounts.id) {
                 google.accounts.id.renderButton(
                     document.querySelector('.g_id_signin'),
@@ -609,70 +657,45 @@ function showLoading(show) {
 }
 
 // Применение разрешений
-function applyPermissionsFromLinks(links) {
-    document.getElementById('manuals-btn').classList.remove('disabled');
-    document.getElementById('store-btn').classList.remove('disabled');
+function applyPermissions(email) {
+    const p = userPermissions[email];
+    if (!p) return;
     
-    const hasParts = links.some(link => 
-        link.url.toLowerCase().includes('parts') || 
-        link.url.toLowerCase().includes('kh') || 
-        link.url.toLowerCase().includes('bb') ||
-        link.url.toLowerCase().includes('skymall')
-    );
+    document.getElementById('manuals-btn').classList.toggle('disabled', !p.manuals);
+    document.getElementById('store-btn').classList.toggle('disabled', !p.store);
     
-    const hasMaintenance = links.some(link => 
-        link.url.toLowerCase().includes('smb') || 
-        link.url.toLowerCase().includes('ls') ||
-        link.url.toLowerCase().includes('kh')
-    );
-    
-    const hasFps = links.some(link => 
-        link.url.toLowerCase().includes('ps-stop') || 
-        link.url.toLowerCase().includes('fps')
-    );
-    
-    const hasAnalysis = links.some(link => 
-        link.url.toLowerCase().includes('analysis')
-    );
-    
-    document.getElementById('card-parts').classList.toggle('disabled', !hasParts);
-    document.getElementById('card-maintenance').classList.toggle('disabled', !hasMaintenance);
-    document.getElementById('card-fps').classList.toggle('disabled', !hasFps);
-    document.getElementById('card-analysis').classList.toggle('disabled', !hasAnalysis);
+    Object.keys(linksMap).forEach(type => {
+        const hasAccess = linksMap[type].some(item => p[item.key] && p[item.key][type]);
+        document.getElementById(`card-${type}`).classList.toggle('disabled', !hasAccess);
+    });
 }
 
 // Обработка действия
 function handleAction(type, buttonElement) {
-    const links = JSON.parse(localStorage.getItem('userLinks') || '[]');
+    const email = localStorage.getItem('userEmail');
+    const p = userPermissions[email];
     
-    const availableLinks = links.filter(link => {
-        const url = link.url.toLowerCase();
-        switch(type) {
-            case 'parts':
-                return url.includes('parts') || url.includes('kh') || url.includes('bb') || url.includes('skymall');
-            case 'maintenance':
-                return url.includes('smb') || url.includes('ls') || url.includes('kh') || url.includes('bb') || url.includes('skymall');
-            case 'fps':
-                return url.includes('ps-stop') || url.includes('fps') || url.includes('kh') || url.includes('bb') || url.includes('skymall');
-            case 'analysis':
-                return url.includes('analysis') || url.includes('bb') || url.includes('sm');
-            default:
-                return false;
-        }
-    });
+    if (!p) {
+        alert('Ошибка: разрешения не найдены');
+        return;
+    }
     
-    if (availableLinks.length === 0) {
+    const available = linksMap[type].filter(item => p[item.key] && p[item.key][type]);
+    
+    if (available.length === 0) {
         alert('Нет доступных ресурсов для этого раздела');
         return;
     }
     
-    if (availableLinks.length === 1) {
-        window.location.href = availableLinks[0].url;
-    } else {
+    if (available.length === 1) {
+        window.location.href = available[0].url;
+    } else if (available.length > 1) {
         const card = buttonElement.closest('.action-card');
+        
         card.classList.add('pulse');
         setTimeout(() => card.classList.remove('pulse'), 1000);
-        showClubSheet(type, availableLinks);
+        
+        showClubSheet(type, available);
     }
 }
 
@@ -690,14 +713,14 @@ function showClubSheet(type, clubs) {
         analysis: 'Аналитика'
     }[type] || type;
     
-    title.textContent = `Выберите ресурс: ${typeName}`;
+    title.textContent = `Выберите клуб: ${typeName}`;
     
     listContainer.innerHTML = '';
-    clubs.forEach((club, index) => {
+    clubs.forEach(club => {
         const btn = document.createElement('a');
         btn.href = club.url;
         btn.className = 'club-sheet-btn';
-        btn.innerHTML = `${club.name || `Ресурс ${index + 1}`} <i class="fas fa-arrow-right"></i>`;
+        btn.innerHTML = `${club.name} <i class="fas fa-arrow-right"></i>`;
         btn.target = '_blank';
         btn.rel = 'noopener noreferrer';
         listContainer.appendChild(btn);
@@ -732,6 +755,7 @@ function parseJwt(token) {
 
 // Выход
 function signOut() { 
+    console.log("Signing out");
     localStorage.clear();
     sessionStorage.clear();
     location.reload(); 
@@ -739,30 +763,51 @@ function signOut() {
 
 // Проверка сессии при загрузке
 window.addEventListener('load', function() {
-    const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
-    const savedEmail = localStorage.getItem('userEmail');
-    const savedName = localStorage.getItem('userName');
-    const savedPic = localStorage.getItem('userPic');
-    const savedLinks = localStorage.getItem('userLinks');
+    console.log("Page loaded, checking localStorage...");
     
-    if (isLoggedIn && savedEmail && savedLinks) {
-        try {
-            const links = JSON.parse(savedLinks);
-            
-            document.getElementById('login').style.display = 'none';
-            document.getElementById('user-info').style.display = 'flex';
-            document.getElementById('main-content').style.display = 'block';
-            
-            document.getElementById('user-pic').src = savedPic || 'https://via.placeholder.com/44';
-            document.getElementById('user-name').textContent = savedName || 'User';
-            document.getElementById('user-email').textContent = savedEmail;
-            
-            applyPermissionsFromLinks(links);
-            userLinks = links;
-        } catch (e) {
-            console.error('Error restoring session:', e);
-            signOut();
-        }
+    const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+    const email = localStorage.getItem('userEmail');
+    const name = localStorage.getItem('userName');
+    const pic = localStorage.getItem('userPic');
+    
+    if (isLoggedIn && email) {
+        console.log("Found stored session for:", email);
+        
+        // Временно показываем интерфейс
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('user-info').style.display = 'flex';
+        
+        document.getElementById('user-name').textContent = name || 'User';
+        document.getElementById('user-email').textContent = email;
+        if (pic) document.getElementById('user-pic').src = pic;
+        
+        // Проверяем email заново через API
+        currentUser = {
+            email: email,
+            name: name,
+            picture: pic
+        };
+        
+        showLoading(true);
+        
+        // Инициализируем API и проверяем email
+        loadSheetsAPI()
+            .then(() => gapi.client.init({
+                apiKey: API_KEY,
+                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+            }))
+            .then(() => checkEmailInSheet(email))
+            .catch(error => {
+                console.error('Session restore error:', error);
+                showLoading(false);
+                alert('Ошибка восстановления сессии');
+                signOut();
+            });
+        
+    } else {
+        console.log("No stored session, showing login button");
+        document.getElementById('login').style.display = 'block';
     }
 });
 
