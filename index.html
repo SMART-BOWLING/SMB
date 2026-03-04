@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -304,9 +305,9 @@
 
         .loading-spinner {
             display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 3px solid rgba(225, 29, 72, 0.3);
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(225, 29, 72, 0.2);
             border-radius: 50%;
             border-top-color: var(--accent);
             animation: spin 1s ease-in-out infinite;
@@ -420,12 +421,26 @@
 </div>
 
 <script>
-// Конфигурация - ВСТАВЬТЕ ВАШ URL СЮДА
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwsKJcZq_PnNyQLXXsitEwiqo9nZBvBGL5wMgOAhMDqC_ziyM7yya8iBUxiH1K6YfnwPw/exec';
+// Конфигурация - ВАШИ ДАННЫЕ
+const SPREADSHEET_ID = '1-yiVdZYa6wJdupTiuiHvI_ht3Vu73RUjyCehZqs2cJ4';
+const SHEET_NAME = '1'; 
+const API_KEY = 'AIzaSyAXL0Hsfxy-g-AgYhnivj4x9gCB2rrtF-0'; // Ваш API ключ
 
 // Глобальные переменные
 let currentUser = null;
 let userLinks = [];
+
+// Загружаем Google API
+function loadSheetsAPI() {
+    return new Promise((resolve, reject) => {
+        gapi.load('client', {
+            callback: () => resolve(),
+            onerror: () => reject('Ошибка загрузки Google API'),
+            timeout: 10000,
+            ontimeout: () => reject('Таймаут загрузки Google API')
+        });
+    });
+}
 
 // Обработка ответа Google
 function handleCredentialResponse(response) {
@@ -435,18 +450,17 @@ function handleCredentialResponse(response) {
         const payload = parseJwt(response.credential);
         console.log("User email:", payload.email);
         
-        // Сохраняем пользователя
         currentUser = {
             email: payload.email.toLowerCase().trim(),
             name: payload.name,
             picture: payload.picture
         };
         
-        // Показываем индикатор загрузки
+        // Показываем загрузку
         showLoading(true);
         
-        // Проверяем email через скрипт
-        checkEmailAccess(currentUser.email);
+        // Инициализируем API и проверяем email
+        initAndCheckEmail();
         
     } catch (e) {
         console.error("Error parsing Google response:", e);
@@ -455,80 +469,90 @@ function handleCredentialResponse(response) {
     }
 }
 
-// Проверка email через скрипт с использованием iframe (обходит CORS)
-function checkEmailAccess(email) {
-    // Создаем скрытый iframe для отправки запроса
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.id = 'authIframe';
-    
-    // Добавляем обработчик загрузки iframe
-    iframe.onload = function() {
-        try {
-            // Пытаемся получить данные из iframe
-            const iframeContent = iframe.contentDocument.body.innerText;
-            console.log('Iframe content:', iframeContent);
-            
-            try {
-                // Пробуем распарсить как JSON
-                const data = JSON.parse(iframeContent);
-                handleAuthResponse(data);
-            } catch (e) {
-                // Если не JSON, возможно это HTML с ошибкой
-                console.error('Not JSON response:', iframeContent.substring(0, 200));
-                
-                // Пробуем найти JSON в тексте
-                const jsonMatch = iframeContent.match(/\{.*\}/);
-                if (jsonMatch) {
-                    try {
-                        const data = JSON.parse(jsonMatch[0]);
-                        handleAuthResponse(data);
-                        return;
-                    } catch (e2) {}
-                }
-                
-                showLoading(false);
-                alert('Ошибка сервера. Получен неверный ответ.');
-            }
-        } catch (e) {
-            console.error('Error reading iframe:', e);
-            showLoading(false);
-            alert('Ошибка доступа к серверу. Проверьте URL скрипта.');
-        }
+// Инициализация API и проверка email
+async function initAndCheckEmail() {
+    try {
+        await loadSheetsAPI();
+        await gapi.client.init({
+            apiKey: API_KEY,
+            discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+        });
         
-        // Удаляем iframe после использования
-        setTimeout(() => {
-            if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-        }, 1000);
-    };
-    
-    // Формируем URL с параметрами
-    const timestamp = new Date().getTime();
-    iframe.src = `${SCRIPT_URL}?action=checkEmail&email=${encodeURIComponent(email)}&timestamp=${timestamp}`;
-    
-    document.body.appendChild(iframe);
-    
-    // Таймаут на случай ошибки
-    setTimeout(() => {
-        if (document.getElementById('authIframe')) {
-            showLoading(false);
-            alert('Таймаут запроса. Сервер не отвечает.');
-            if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-        }
-    }, 10000);
+        await checkEmailInSheet(currentUser.email);
+        
+    } catch (error) {
+        console.error('API initialization error:', error);
+        showLoading(false);
+        alert('Ошибка инициализации Google API: ' + error);
+    }
 }
 
-// Обработка ответа аутентификации
-function handleAuthResponse(data) {
-    console.log('Auth response:', data);
-    
-    if (data && data.access === true) {
-        userLinks = data.links || [];
-        loginUser(currentUser, userLinks);
-    } else {
+// Проверка email в Google Sheets
+async function checkEmailInSheet(email) {
+    try {
+        const response = await gapi.client.sheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: `${SHEET_NAME}!A:Z`,
+        });
+        
+        const rows = response.result.values;
+        if (!rows || rows.length === 0) {
+            showLoading(false);
+            alert('Таблица пуста');
+            return;
+        }
+        
+        // Ищем email в колонке A
+        let foundRow = null;
+        
+        for (let i = 0; i < rows.length; i++) {
+            if (!rows[i][0]) continue; // Пропускаем пустые строки
+            
+            const rowEmail = rows[i][0].toLowerCase().trim();
+            if (rowEmail === email) {
+                foundRow = rows[i];
+                break;
+            }
+        }
+        
+        if (foundRow) {
+            // Извлекаем ссылки (начиная с колонки B)
+            const links = [];
+            for (let j = 1; j < foundRow.length; j++) {
+                if (foundRow[j] && foundRow[j].trim() !== '') {
+                    let name = `Ресурс ${j}`;
+                    const url = foundRow[j].toLowerCase();
+                    
+                    if (url.includes('parts')) name = 'Запчасти';
+                    else if (url.includes('smb') || url.includes('maintenance')) name = 'Обслуживание';
+                    else if (url.includes('ps-stop') || url.includes('fps')) name = 'FPS';
+                    else if (url.includes('analysis')) name = 'Аналитика';
+                    else if (url.includes('manual')) name = 'Инструкции';
+                    else if (url.includes('store')) name = 'Магазин';
+                    
+                    links.push({
+                        url: foundRow[j].trim(),
+                        name: name
+                    });
+                }
+            }
+            
+            userLinks = links;
+            loginUser(currentUser, links);
+        } else {
+            showLoading(false);
+            alert('Доступ запрещен: Ваш email не найден в таблице');
+        }
+        
+    } catch (error) {
+        console.error('Sheets API error:', error);
         showLoading(false);
-        const message = data ? data.message : 'Доступ запрещен';
-        alert('Доступ запрещен: ' + message);
+        
+        let errorMessage = 'Ошибка доступа к таблице';
+        if (error.result && error.result.error && error.result.error.message) {
+            errorMessage += ': ' + error.result.error.message;
+        }
+        alert(errorMessage);
     }
 }
 
@@ -536,27 +560,21 @@ function handleAuthResponse(data) {
 function loginUser(user, links) {
     console.log("Logging in user:", user.email);
     
-    // Скрываем логин, показываем интерфейс
     document.getElementById('login').style.display = 'none';
     document.getElementById('user-info').style.display = 'flex';
     document.getElementById('main-content').style.display = 'block';
     
-    // Заполняем данные пользователя
     document.getElementById('user-pic').src = user.picture;
     document.getElementById('user-name').textContent = user.name;
     document.getElementById('user-email').textContent = user.email;
     
-    // Сохраняем в localStorage
     localStorage.setItem('userLoggedIn', 'true');
     localStorage.setItem('userEmail', user.email);
     localStorage.setItem('userName', user.name);
     localStorage.setItem('userPic', user.picture);
     localStorage.setItem('userLinks', JSON.stringify(links));
     
-    // Применяем разрешения
     applyPermissionsFromLinks(links);
-    
-    // Скрываем индикатор загрузки
     showLoading(false);
 }
 
@@ -564,13 +582,11 @@ function loginUser(user, links) {
 function showLoading(show) {
     const loginDiv = document.getElementById('login');
     if (show) {
-        // Сохраняем оригинал
         if (!loginDiv.hasAttribute('data-original')) {
             loginDiv.setAttribute('data-original', loginDiv.innerHTML);
         }
-        loginDiv.innerHTML = '<div style="padding: 30px; text-align: center;"><div class="loading-spinner"></div><br><span style="color: var(--text-muted); margin-top: 10px; display: block;">Проверка доступа...</span></div>';
+        loginDiv.innerHTML = '<div style="padding: 40px; text-align: center;"><div class="loading-spinner"></div><br><span style="color: var(--text-muted); margin-top: 15px; display: block;">Проверка доступа...</span></div>';
     } else {
-        // Восстанавливаем, если нужно
         if (loginDiv.getAttribute('data-original') && document.getElementById('login').style.display !== 'none') {
             loginDiv.innerHTML = loginDiv.getAttribute('data-original');
             
@@ -578,20 +594,25 @@ function showLoading(show) {
             if (window.google && google.accounts && google.accounts.id) {
                 google.accounts.id.renderButton(
                     document.querySelector('.g_id_signin'),
-                    { type: 'standard', shape: 'pill', theme: 'outline', text: 'signin_with', size: 'large', logo_alignment: 'left' }
+                    { 
+                        type: 'standard', 
+                        shape: 'pill', 
+                        theme: 'outline', 
+                        text: 'signin_with', 
+                        size: 'large', 
+                        logo_alignment: 'left' 
+                    }
                 );
             }
         }
     }
 }
 
-// Применение разрешений на основе ссылок
+// Применение разрешений
 function applyPermissionsFromLinks(links) {
-    // По умолчанию открываем основные разделы
     document.getElementById('manuals-btn').classList.remove('disabled');
     document.getElementById('store-btn').classList.remove('disabled');
     
-    // Определяем доступные разделы
     const hasParts = links.some(link => 
         link.url.toLowerCase().includes('parts') || 
         link.url.toLowerCase().includes('kh') || 
@@ -716,7 +737,7 @@ function signOut() {
     location.reload(); 
 }
 
-// Проверка сессии
+// Проверка сессии при загрузке
 window.addEventListener('load', function() {
     const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
     const savedEmail = localStorage.getItem('userEmail');
@@ -739,6 +760,7 @@ window.addEventListener('load', function() {
             applyPermissionsFromLinks(links);
             userLinks = links;
         } catch (e) {
+            console.error('Error restoring session:', e);
             signOut();
         }
     }
