@@ -52,7 +52,6 @@
             max-width: 800px;
         }
 
-        /* ===== AUTH BLOCKS ===== */
         #login, #user-info, #access-denied {
             background: var(--card-bg);
             padding: 25px;
@@ -103,7 +102,6 @@
 
         #logout-btn:hover { background: var(--accent); color: white; }
 
-        /* ===== ACTION GRID ===== */
         .action-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -165,7 +163,6 @@
             transform: scale(1.1);
         }
 
-        /* ===== Bottom Sheet ===== */
         .sheet-overlay {
             position: fixed;
             top: 0;
@@ -222,7 +219,6 @@
             text-align: center;
         }
 
-        /* Контейнер для списка клубов */
         .sheet-clubs-list {
             display: flex;
             flex-direction: column;
@@ -432,10 +428,27 @@ const SPREADSHEET_ID = '1-yiVdZYa6wJdupTiuiHvI_ht3Vu73RUjyCehZqs2cJ4';
 const SHEET_NAME = '1'; 
 const API_KEY = 'AIzaSyAXL0Hsfxy-g-AgYhnivj4x9gCB2rrtF-0';
 
-// Структура разрешений пользователей (будет заполняться из таблицы)
-let userPermissions = {};
+// ТОЧНАЯ КАРТА СООТВЕТСТВИЙ ССЫЛОК КЛУБАМ И РАЗДЕЛАМ
+const LINK_PATTERNS = {
+    // Lucky Strike KH
+    'https://smart-bowling.github.io/PARTS-KH/': { club: 'luckyStrike', type: 'parts' },
+    'https://smart-bowling.github.io/SMB-LS-KH/': { club: 'luckyStrike', type: 'maintenance' },
+    'https://smart-bowling.github.io/PS-STOP-KH/': { club: 'luckyStrike', type: 'fps' },
+    
+    // Blockbuster
+    'https://smart-bowling.github.io/PARTS-BB/': { club: 'blockbuster', type: 'parts' },
+    'https://smart-bowling.github.io/SMB-BB/': { club: 'blockbuster', type: 'maintenance' },
+    'https://smart-bowling.github.io/PS-STOP-BB/': { club: 'blockbuster', type: 'fps' },
+    'https://smart-bowling.github.io/ANALYSIS-BB/': { club: 'blockbuster', type: 'analysis' },
+    
+    // Skymall
+    'https://smart-bowling.github.io/PARTS-SKYMALL/': { club: 'skymall', type: 'parts' },
+    'https://smart-bowling.github.io/SMB-SKYMALL/': { club: 'skymall', type: 'maintenance' },
+    'https://smart-bowling.github.io/PS-STOP-SKYMALL/': { club: 'skymall', type: 'fps' },
+    'https://smart-bowling.github.io/ANALYSIS-SM/': { club: 'skymall', type: 'analysis' }
+};
 
-// Карта ссылок для каждого раздела
+// Карта ссылок для отображения в Bottom Sheet
 const linksMap = {
     parts: [
         {name:'Lucky Strike KH', url:'https://smart-bowling.github.io/PARTS-KH/', key:'luckyStrike'},
@@ -458,7 +471,8 @@ const linksMap = {
     ]
 };
 
-// Глобальные переменные
+// Структура разрешений пользователей
+let userPermissions = {};
 let currentUser = null;
 
 // Загружаем Google API
@@ -487,10 +501,7 @@ function handleCredentialResponse(response) {
             picture: payload.picture
         };
         
-        // Показываем загрузку
         showLoading(true);
-        
-        // Инициализируем API и проверяем email
         initAndCheckEmail();
         
     } catch (e) {
@@ -547,7 +558,7 @@ async function checkEmailInSheet(email) {
         }
         
         if (foundRow) {
-            // Создаем структуру разрешений на основе найденных ссылок
+            // Создаем структуру разрешений
             const permissions = {
                 manuals: true,
                 store: true,
@@ -556,38 +567,28 @@ async function checkEmailInSheet(email) {
                 skymall: { parts: false, maintenance: false, fps: false, analysis: false }
             };
             
-            // Анализируем ссылки (начиная с колонки B)
+            // ТОЧНОЕ СКАНИРОВАНИЕ ССЫЛОК
             for (let j = 1; j < foundRow.length; j++) {
-                if (foundRow[j] && foundRow[j].trim() !== '') {
-                    const url = foundRow[j].toLowerCase();
-                    
-                    // Определяем клуб и тип
-                    if (url.includes('kh') || url.includes('lucky')) {
-                        if (url.includes('parts')) permissions.luckyStrike.parts = true;
-                        if (url.includes('smb')) permissions.luckyStrike.maintenance = true;
-                        if (url.includes('ps-stop') || url.includes('fps')) permissions.luckyStrike.fps = true;
-                    }
-                    
-                    if (url.includes('bb') || url.includes('blockbuster')) {
-                        if (url.includes('parts')) permissions.blockbuster.parts = true;
-                        if (url.includes('smb')) permissions.blockbuster.maintenance = true;
-                        if (url.includes('ps-stop') || url.includes('fps')) permissions.blockbuster.fps = true;
-                        if (url.includes('analysis')) permissions.blockbuster.analysis = true;
-                    }
-                    
-                    if (url.includes('sky') || url.includes('skymall') || url.includes('sm')) {
-                        if (url.includes('parts')) permissions.skymall.parts = true;
-                        if (url.includes('smb')) permissions.skymall.maintenance = true;
-                        if (url.includes('ps-stop') || url.includes('fps')) permissions.skymall.fps = true;
-                        if (url.includes('analysis')) permissions.skymall.analysis = true;
-                    }
+                const cellValue = foundRow[j];
+                if (!cellValue || cellValue.trim() === '') continue;
+                
+                const cleanUrl = cellValue.trim().split('?')[0].split('#')[0]; // Убираем параметры и якоря
+                console.log(`Scanning URL: ${cleanUrl}`);
+                
+                // Проверяем точное соответствие с паттернами
+                if (LINK_PATTERNS[cleanUrl]) {
+                    const match = LINK_PATTERNS[cleanUrl];
+                    permissions[match.club][match.type] = true;
+                    console.log(`✅ Matched: ${match.club} - ${match.type}`);
+                } else {
+                    console.log(`❌ No exact match for: ${cleanUrl}`);
                 }
             }
             
             // Сохраняем разрешения
             userPermissions[email] = permissions;
+            console.log('Final permissions:', permissions);
             
-            // Выполняем вход
             loginUser(currentUser);
         } else {
             showLoading(false);
@@ -773,7 +774,6 @@ window.addEventListener('load', function() {
     if (isLoggedIn && email) {
         console.log("Found stored session for:", email);
         
-        // Временно показываем интерфейс
         document.getElementById('login').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
         document.getElementById('user-info').style.display = 'flex';
@@ -782,7 +782,6 @@ window.addEventListener('load', function() {
         document.getElementById('user-email').textContent = email;
         if (pic) document.getElementById('user-pic').src = pic;
         
-        // Проверяем email заново через API
         currentUser = {
             email: email,
             name: name,
@@ -791,7 +790,6 @@ window.addEventListener('load', function() {
         
         showLoading(true);
         
-        // Инициализируем API и проверяем email
         loadSheetsAPI()
             .then(() => gapi.client.init({
                 apiKey: API_KEY,
