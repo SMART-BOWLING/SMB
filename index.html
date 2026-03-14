@@ -25,7 +25,7 @@
             --text-muted: #64748b;
             --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
             --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
-            --transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
             --card-bg: #ffffff;
         }
 
@@ -173,7 +173,7 @@
             backdrop-filter: blur(4px);
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
             z-index: 100;
         }
 
@@ -191,7 +191,7 @@
             border-radius: 28px 28px 0 0;
             box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.3);
             transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             z-index: 200;
             max-height: 70vh;
             overflow-y: auto;
@@ -240,7 +240,7 @@
             text-decoration: none;
             color: var(--text-dark);
             font-weight: 600;
-            transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
             border: 1px solid #e2e8f0;
             transform: none !important;
             cursor: pointer;
@@ -250,14 +250,12 @@
             background: #1f2937;
             color: white;
             border-color: #1f2937;
-            box-shadow: 0 8px 15px -6px rgba(0, 0, 0, 0.3);
-            transform: none !important;
         }
 
         .club-sheet-btn i {
             color: #1f2937;
             font-size: 14px;
-            transition: color 0.2s ease;
+            transition: color 0.15s ease;
         }
 
         .club-sheet-btn:hover i {
@@ -293,7 +291,29 @@
         }
 
         .action-card.pulse {
-            animation: pulse 1s ease;
+            animation: pulse 0.8s ease;
+        }
+
+        .action-card.loading {
+            opacity: 0.7;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .action-card.loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            z-index: 3;
+        }
+
+        .action-card.loading .action-btn i {
+            color: var(--text-muted);
         }
 
         .disabled { 
@@ -313,7 +333,7 @@
             border: 4px solid rgba(225, 29, 72, 0.2);
             border-radius: 50%;
             border-top-color: var(--accent);
-            animation: spin 1s ease-in-out infinite;
+            animation: spin 0.8s ease-in-out infinite;
         }
 
         @keyframes spin {
@@ -431,24 +451,20 @@ const API_KEY = 'AIzaSyAXL0Hsfxy-g-AgYhnivj4x9gCB2rrtF-0';
 
 // ТОЧНАЯ КАРТА СООТВЕТСТВИЙ ССЫЛОК КЛУБАМ И РАЗДЕЛАМ
 const LINK_PATTERNS = {
-    // Lucky Strike KH
     'https://smart-bowling.github.io/PARTS-KH/': { club: 'luckyStrike', type: 'parts' },
     'https://smart-bowling.github.io/SMB-LS-KH/': { club: 'luckyStrike', type: 'maintenance' },
     'https://smart-bowling.github.io/PS-STOP-KH/': { club: 'luckyStrike', type: 'fps' },
     
-    // Blockbuster
     'https://smart-bowling.github.io/PARTS-BB/': { club: 'blockbuster', type: 'parts' },
     'https://smart-bowling.github.io/SMB-BB/': { club: 'blockbuster', type: 'maintenance' },
     'https://smart-bowling.github.io/PS-STOP-BB/': { club: 'blockbuster', type: 'fps' },
     'https://smart-bowling.github.io/ANALYSIS-BB/': { club: 'blockbuster', type: 'analysis' },
     
-    // Skymall
     'https://smart-bowling.github.io/PARTS-SKYMALL/': { club: 'skymall', type: 'parts' },
     'https://smart-bowling.github.io/SMB-SKYMALL/': { club: 'skymall', type: 'maintenance' },
     'https://smart-bowling.github.io/PS-STOP-SKYMALL/': { club: 'skymall', type: 'fps' },
     'https://smart-bowling.github.io/ANALYSIS-SM/': { club: 'skymall', type: 'analysis' },
     
-    // Общие ссылки
     'https://smart-bowling.github.io/MANUALS-SMART/': { type: 'manuals' },
     'https://smart-bowling.github.io/PARTS-STORE/': { type: 'store' }
 };
@@ -479,6 +495,12 @@ const linksMap = {
 // Структура разрешений пользователей
 let userPermissions = {};
 let currentUser = null;
+let permissionsLoading = false;
+
+// Кэш разрешений из localStorage
+const PERMISSIONS_CACHE_KEY = 'userPermissionsCache';
+const CACHE_EXPIRY_KEY = 'permissionsCacheExpiry';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 минут
 
 // Загружаем Google API
 function loadSheetsAPI() {
@@ -486,10 +508,44 @@ function loadSheetsAPI() {
         gapi.load('client', {
             callback: () => resolve(),
             onerror: () => reject('Ошибка загрузки Google API'),
-            timeout: 10000,
+            timeout: 8000,
             ontimeout: () => reject('Таймаут загрузки Google API')
         });
     });
+}
+
+// Сохранить разрешения в кэш
+function cachePermissions(email, permissions) {
+    try {
+        const cacheData = {
+            email: email,
+            permissions: permissions,
+            timestamp: Date.now()
+        };
+        localStorage.setItem(PERMISSIONS_CACHE_KEY, JSON.stringify(cacheData));
+        localStorage.setItem(CACHE_EXPIRY_KEY, Date.now() + CACHE_DURATION);
+    } catch (e) {
+        console.warn('Failed to cache permissions:', e);
+    }
+}
+
+// Загрузить разрешения из кэша
+function loadCachedPermissions(email) {
+    try {
+        const cached = localStorage.getItem(PERMISSIONS_CACHE_KEY);
+        const expiry = localStorage.getItem(CACHE_EXPIRY_KEY);
+        
+        if (cached && expiry && Date.now() < parseInt(expiry)) {
+            const data = JSON.parse(cached);
+            if (data.email === email) {
+                console.log('Loaded permissions from cache for:', email);
+                return data.permissions;
+            }
+        }
+    } catch (e) {
+        console.warn('Failed to load cached permissions:', e);
+    }
+    return null;
 }
 
 // Обработка ответа Google
@@ -506,6 +562,14 @@ function handleCredentialResponse(response) {
             picture: payload.picture
         };
         
+        // Сначала пробуем загрузить из кэша
+        const cachedPerms = loadCachedPermissions(currentUser.email);
+        if (cachedPerms) {
+            userPermissions[currentUser.email] = cachedPerms;
+            loginUser(currentUser, true); // true = из кэша
+        }
+        
+        // Затем загружаем свежие данные
         showLoading(true);
         initAndCheckEmail();
         
@@ -530,7 +594,16 @@ async function initAndCheckEmail() {
     } catch (error) {
         console.error('API initialization error:', error);
         showLoading(false);
-        alert('Ошибка инициализации Google API: ' + error);
+        
+        // Если есть кэш, продолжаем работу с ним
+        const cached = loadCachedPermissions(currentUser.email);
+        if (cached) {
+            console.log('Using cached permissions after API error');
+            userPermissions[currentUser.email] = cached;
+            loginUser(currentUser, true);
+        } else {
+            alert('Ошибка инициализации Google API: ' + error);
+        }
     }
 }
 
@@ -599,31 +672,58 @@ async function checkEmailInSheet(email) {
                 }
             }
             
-            // Сохраняем разрешения
+            // Сохраняем в кэш
+            cachePermissions(email, permissions);
+            
+            // Обновляем разрешения
             userPermissions[email] = permissions;
             console.log('Final permissions:', permissions);
             
-            loginUser(currentUser);
+            // Если пользователь уже залогинен (из кэша), обновляем разрешения
+            if (document.getElementById('main-content').style.display === 'block') {
+                applyPermissions(email);
+            } else {
+                loginUser(currentUser);
+            }
+            
+            showLoading(false);
         } else {
             showLoading(false);
-            alert('Доступ запрещен: Ваш email не найден в таблице');
+            
+            // Проверяем кэш на случай ошибки
+            const cached = loadCachedPermissions(email);
+            if (cached) {
+                console.log('Email not found but using cached permissions');
+                userPermissions[email] = cached;
+                loginUser(currentUser, true);
+            } else {
+                alert('Доступ запрещен: Ваш email не найден в таблице');
+            }
         }
         
     } catch (error) {
         console.error('Sheets API error:', error);
         showLoading(false);
         
-        let errorMessage = 'Ошибка доступа к таблице';
-        if (error.result && error.result.error && error.result.error.message) {
-            errorMessage += ': ' + error.result.error.message;
+        // При ошибке API используем кэш
+        const cached = loadCachedPermissions(email);
+        if (cached) {
+            console.log('Using cached permissions after API error');
+            userPermissions[email] = cached;
+            loginUser(currentUser, true);
+        } else {
+            let errorMessage = 'Ошибка доступа к таблице';
+            if (error.result && error.result.error && error.result.error.message) {
+                errorMessage += ': ' + error.result.error.message;
+            }
+            alert(errorMessage);
         }
-        alert(errorMessage);
     }
 }
 
 // Функция входа пользователя
-function loginUser(payload) {
-    console.log("Logging in user:", payload.email);
+function loginUser(payload, fromCache = false) {
+    console.log("Logging in user:", payload.email, fromCache ? '(from cache)' : '');
     
     document.getElementById('login').style.display = 'none';
     document.getElementById('user-info').style.display = 'flex';
@@ -638,13 +738,19 @@ function loginUser(payload) {
     localStorage.setItem('userName', payload.name);
     localStorage.setItem('userPic', payload.picture);
     
+    // Мгновенно применяем разрешения
     applyPermissions(payload.email.toLowerCase());
-    showLoading(false);
+    
+    if (!fromCache) {
+        showLoading(false);
+    }
 }
 
 // Показать/скрыть индикатор загрузки
 function showLoading(show) {
     const loginDiv = document.getElementById('login');
+    permissionsLoading = show;
+    
     if (show) {
         if (!loginDiv.hasAttribute('data-original')) {
             loginDiv.setAttribute('data-original', loginDiv.innerHTML);
@@ -674,8 +780,20 @@ function showLoading(show) {
 // Применение разрешений
 function applyPermissions(email) {
     const p = userPermissions[email];
-    if (!p) return;
+    if (!p) {
+        // Если разрешений нет, показываем кнопки как недоступные
+        document.querySelectorAll('.action-card').forEach(card => {
+            card.classList.add('loading');
+        });
+        return;
+    }
     
+    // Убираем состояние загрузки
+    document.querySelectorAll('.action-card').forEach(card => {
+        card.classList.remove('loading');
+    });
+    
+    // Применяем разрешения
     document.getElementById('manuals-btn').classList.toggle('disabled', !p.manuals);
     document.getElementById('store-btn').classList.toggle('disabled', !p.store);
     
@@ -691,12 +809,16 @@ function handleGeneralLink(type, url) {
     const p = userPermissions[email];
     
     if (!p) {
-        alert('Ошибка: разрешения не найдены');
+        if (permissionsLoading) {
+            alert('Пожалуйста, подождите, проверка доступа...');
+        } else {
+            alert('Ошибка: разрешения не найдены');
+        }
         return;
     }
     
     if ((type === 'manuals' && p.manuals) || (type === 'store' && p.store)) {
-        window.location.href = url; // Открываем в той же вкладке
+        window.location.href = url;
     }
 }
 
@@ -706,7 +828,11 @@ function handleAction(type, buttonElement) {
     const p = userPermissions[email];
     
     if (!p) {
-        alert('Ошибка: разрешения не найдены');
+        if (permissionsLoading) {
+            alert('Пожалуйста, подождите, проверка доступа...');
+        } else {
+            alert('Ошибка: разрешения не найдены');
+        }
         return;
     }
     
@@ -718,12 +844,12 @@ function handleAction(type, buttonElement) {
     }
     
     if (available.length === 1) {
-        window.location.href = available[0].url; // Открываем в той же вкладке
+        window.location.href = available[0].url;
     } else if (available.length > 1) {
         const card = buttonElement.closest('.action-card');
         
         card.classList.add('pulse');
-        setTimeout(() => card.classList.remove('pulse'), 1000);
+        setTimeout(() => card.classList.remove('pulse'), 800);
         
         showClubSheet(type, available);
     }
@@ -751,7 +877,7 @@ function showClubSheet(type, clubs) {
         btn.className = 'club-sheet-btn';
         btn.innerHTML = `${club.name} <i class="fas fa-arrow-right"></i>`;
         btn.onclick = function() {
-            window.location.href = club.url; // Открываем в той же вкладке
+            window.location.href = club.url;
         };
         listContainer.appendChild(btn);
     });
@@ -817,6 +943,19 @@ window.addEventListener('load', function() {
             picture: pic
         };
         
+        // Сначала пробуем загрузить из кэша
+        const cachedPerms = loadCachedPermissions(email);
+        if (cachedPerms) {
+            userPermissions[email] = cachedPerms;
+            applyPermissions(email);
+        } else {
+            // Показываем кнопки в состоянии загрузки
+            document.querySelectorAll('.action-card').forEach(card => {
+                card.classList.add('loading');
+            });
+        }
+        
+        // Затем загружаем свежие данные
         showLoading(true);
         
         loadSheetsAPI()
@@ -828,8 +967,14 @@ window.addEventListener('load', function() {
             .catch(error => {
                 console.error('Session restore error:', error);
                 showLoading(false);
-                alert('Ошибка восстановления сессии');
-                signOut();
+                
+                // Если есть кэш, продолжаем работу с ним
+                if (cachedPerms) {
+                    console.log('Using cached permissions after error');
+                } else {
+                    alert('Ошибка восстановления сессии');
+                    signOut();
+                }
             });
         
     } else {
