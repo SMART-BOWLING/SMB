@@ -1,1985 +1,990 @@
-<!DOCTYPE html>
-<html lang="ru">
+ <!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SMB BB</title>
-  
-  <!-- ===================== ССЫЛКИ ДЛЯ УДОБНОГО ИЗМЕНЕНИЯ ===================== -->
-  <script>
-    // ============== ССЫЛКИ НА ИКОНКИ И ШРИФТЫ ==============
-    const LINKS = {
-      // Иконка сайта (favicon)
-      FAVICON: "https://i.postimg.cc/dtSpKx0W/1.png",
-      
-      // Логотип в шапке
-      LOGO: "https://i.postimg.cc/wjGzSY92/1.png",
-      
-      // Шрифты
-      FONT_AWESOME: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css",
-      GOOGLE_FONT: "https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap",
-      
-      // ============== API И АУТЕНТИФИКАЦИЯ ==============
-      GAS_URL: "https://script.google.com/macros/s/AKfycbxXwr54yuVZpdPTEugmTHedgrRlUWNT1E7Iz_LJ4jqidJZTQFe5v2XH8LCMCILwr47s/exec",
-      GOOGLE_CLIENT_ID: "328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com",
-      
-      // ============== НОВЫЕ ПАРАМЕТРЫ ДЛЯ АВТОРИЗАЦИИ ==============
-      API_KEY: 'AIzaSyAXL0Hsfxy-g-AgYhnivj4x9gCB2rrtF-0',
-      SPREADSHEET_ID: '1-yiVdZYa6wJdupTiuiHvI_ht3Vu73RUjyCehZqs2cJ4',
-      CURRENT_SITE: 'https://smart-bowling.github.io/SMB-BB/'
-    };
-  </script>
-  <!-- ===================== КОНЕЦ ССЫЛОК ===================== -->
-  
-  <link rel="icon" type="image/png" href="https://i.postimg.cc/dtSpKx0W/1.png" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Identity Script -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://apis.google.com/js/api.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>SMB</title>
 
-    #login {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: #ffffff;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 10000;
-      padding: 20px;
-      font-family: 'Arial', sans-serif;
-    }
+    <link rel="icon" type="image/png" sizes="192x192" href="https://i.postimg.cc/QNkbRTbS/1.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     
-    #login h2 {
-      display: none;
-    }
-    
-    .g_id_signin {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 0 auto;
-      background: transparent;
-      padding: 0;
-      border-radius: 0;
-      box-shadow: none;
-      transition: none;
-      animation: none;
-    }
-    
-    .g_id_signin:hover {
-      transform: none;
-      box-shadow: none;
-    }
-
-    body, html {
-      margin: 0;
-      padding: 0;
-      font-family: "Poppins", sans-serif;
-      background-color: #f4f6f9;
-      color: #1a2f40;
-      font-size: clamp(10px, 3vw, 14px);
-      font-weight: 700;
-      touch-action: manipulation;
-    }
-
-    header {
-      background-color: #1f2937;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      user-select: none;
-      z-index: 1000;
-    }
-
-    .logo img {
-      width: 40px;
-      height: 40px;
-      object-fit: cover;
-      border-radius: 0;
-      transform: translateY(4px);
-    }
-
-    .site-name {
-      flex: 1;
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .user-avatar {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 2px solid white;
-      background-color: #4a5568;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .user-avatar:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 10px rgba(255,255,255,0.3);
-    }
-
-    .user-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .user-avatar i {
-      font-size: 16px;
-      color: white;
-    }
-
-    @media (max-width: 768px) {
-      .user-avatar {
-        width: 32px;
-        height: 32px;
-      }
-      
-      .user-avatar i {
-        font-size: 18px;
-      }
-    }
-
-    .user-dropdown {
-      display: none;
-      position: absolute;
-      top: 70px;
-      right: 20px;
-      background-color: #1f2937;
-      border: 1px solid #444;
-      border-radius: 8px;
-      overflow: hidden;
-      z-index: 9999;
-      min-width: 150px;
-    }
-
-    .user-dropdown a {
-      padding: 10px 15px;
-      text-decoration: none;
-      color: white;
-      transition: background 0.3s;
-      user-select: none;
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-    }
-
-    .user-dropdown a:hover {
-      background-color: #374151;
-    }
-
-    .icon-space {
-      margin-right: 10px;
-      width: 20px;
-      text-align: center;
-    }
-
-    /* Кнопка РЕЙТИНГ */
-    .rating-button {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #1a2f40;
-      color: white;
-      font-weight: 700;
-      font-size: 16px;
-      padding: 12px 16px;
-      margin: 80px auto 15px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      width: 96%;
-      max-width: 500px;
-      box-sizing: border-box;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      user-select: none;
-    }
-
-    .rating-button:hover {
-      background-color: #2a3648;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    .rating-button:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-    }
-
-    .rating-button i {
-      font-size: 18px;
-      transition: transform 0.3s ease;
-    }
-
-    .rating-button.expanded i {
-      transform: rotate(180deg);
-    }
-
-    /* Карточка с открытыми задачами - теперь кликабельная */
-    .task-summary-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #fff;
-      color: #000;
-      font-weight: 700;
-      font-size: 16px;
-      padding: 12px 16px;
-      margin: 15px auto;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      width: 96%;
-      max-width: 500px;
-      box-sizing: border-box;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      user-select: none;
-      min-height: 50px;
-    }
-
-    .task-summary-card:hover {
-      background-color: #f9f9f9;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    .task-summary-card:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-    }
-
-    .task-summary-card.expanded {
-      margin-bottom: 0;
-      border-bottom-left-radius: 0;
-      border-bottom-right-radius: 0;
-      border-bottom: 2px solid #dc143c;
-    }
-
-    /* Контейнер для фильтра по дате */
-    .date-filter-container {
-      display: none;
-      padding: 16px;
-      background-color: #f8f9fa;
-      border-radius: 0 0 12px 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      margin: 0 auto 15px;
-      width: 96%;
-      max-width: 500px;
-      box-sizing: border-box;
-      flex-direction: column;
-      gap: 12px;
-      border-top: none;
-    }
-
-    .date-filter-container.show {
-      display: flex;
-    }
-
-    .date-filter-label {
-      font-size: 14px;
-      font-weight: 600;
-      color: #1a2f40;
-      text-align: center;
-      margin-bottom: 5px;
-    }
-
-    .date-input-wrapper {
-      position: relative;
-      width: 100%;
-    }
-
-    .date-filter-input {
-      padding: 12px 16px;
-      padding-left: 45px;
-      border: 1px solid #d0d0d0;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      background-color: white;
-      color: #1a2f40;
-      cursor: pointer;
-      width: 100%;
-      -webkit-appearance: none;
-      appearance: none;
-      box-sizing: border-box;
-      min-height: 46px;
-      display: flex;
-      align-items: center;
-    }
-
-    .date-filter-input:focus {
-      outline: none;
-      border-color: #dc143c;
-    }
-
-    .calendar-icon {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #666;
-      pointer-events: none;
-      font-size: 16px;
-    }
-
-    .clear-filter-btn {
-      padding: 12px 16px;
-      background-color: #1a2f40;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      width: 100%;
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .clear-filter-btn:hover {
-      background-color: #0d1f2d;
-    }
-
-    /* Счетчик задач в карточке */
-    .task-count {
-      background-color: #dc143c;
-      color: white;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 14px;
-      min-width: 30px;
-      text-align: center;
-    }
-
-    /* ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ КАРТОЧЕК - ОДИНАКОВАЯ ШИРИНА КАК У КАРТОЧЕК ЗАДАЧ */
-    .mechanics-rating {
-      background-color: #fff;
-      margin: 15px auto;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      width: 96%;
-      max-width: 500px;
-      padding: 15px;
-      box-sizing: border-box;
-      display: none; /* Скрыто по умолчанию */
-    }
-
-    .winner-section {
-      background-color: #fff;
-      margin: 15px auto;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      width: 96%;
-      max-width: 500px;
-      padding: 15px;
-      box-sizing: border-box;
-      display: none; /* Скрыто по умолчанию */
-    }
-
-    .mechanics-rating h3 {
-      margin: 0 0 12px 0;
-      text-align: center;
-      color: #1a2f40;
-      font-size: 16px;
-      border-bottom: 2px solid #dc143c;
-      padding-bottom: 8px;
-    }
-
-    .winner-section h3 {
-      margin: 0 0 12px 0;
-      text-align: center;
-      color: #1a2f40;
-      font-size: 16px;
-      border-bottom: 2px solid #dc143c;
-      padding-bottom: 8px;
-    }
-
-    .rating-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
-    }
-
-    .rating-item:last-child {
-      border-bottom: none;
-    }
-
-    .winner-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-    }
-
-    .mechanic-name {
-      font-weight: 600;
-      color: #1a2f40;
-    }
-
-    .winner-name {
-      font-weight: 600;
-      color: #1a2f40;
-    }
-
-    .winner-count {
-      background-color: #dc143c;
-      color: white;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 14px;
-      min-width: 30px;
-      text-align: center;
-    }
-
-    .rating-place {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .winner-place {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .place-badge {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 12px;
-      color: white;
-    }
-
-    .wrench-icon {
-      color: #1a2f40;
-      font-size: 16px;
-    }
-
-    .place-1 {
-      background-color: #ffd700;
-      color: #000;
-    }
-
-    .place-2 {
-      background-color: #c0c0c0;
-    }
-
-    .place-3 {
-      background-color: #cd7f32;
-    }
-
-    .place-other {
-      background-color: #1a2f40;
-    }
-
-    /* ========== ОСНОВНОЙ КОНТЕЙНЕР ========== */
-    #app-content {
-      width: 98%;
-      max-width: 1200px;
-      margin: 80px auto 40px;
-      padding: 0 10px 10px 10px;
-      box-sizing: border-box;
-      background: transparent;
-    }
-
-    /* Стили для таблицы - превращаем её в сетку */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    
-    thead {
-      display: none;
-    }
-    
-    tbody {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
-      width: 100%;
-    }
-    
-    /* Контейнер карточки */
-    .card-container {
-      position: relative;
-      margin-bottom: 0;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      height: fit-content;
-    }
-    
-    /* Стили для карточки */
-    tbody tr {
-      display: block;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      padding: 12px;
-      box-sizing: border-box;
-      user-select: none;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      width: 100%;
-      margin: 0;
-    }
-
-    tbody tr::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, rgba(220, 20, 60, 0.1) 0%, rgba(26, 47, 64, 0.1) 100%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 0;
-    }
-
-    tbody tr.selected {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 0 0 2px #dc143c;
-      margin-bottom: 0;
-    }
-
-    tbody tr.selected::before {
-      opacity: 1;
-    }
-
-    tbody tr:nth-child(even) {
-      background-color: white;
-    }
-
-    tbody tr:hover {
-      background-color: #f9f9f9;
-    }
-
-    tbody td:nth-child(1) {
-      display: none;
-    }
-
-    tbody td {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 8px;
-      border-bottom: 1px solid #ddd;
-      font-weight: 700;
-      text-align: left;
-      white-space: normal;
-      font-size: 13px;
-      box-sizing: border-box;
-      position: relative;
-      z-index: 1;
-    }
-
-    tbody td:last-child {
-      padding-right: 0;
-      border-bottom: none;
-    }
-
-    tbody td::before {
-      content: attr(data-label);
-      font-weight: 700;
-      color: #1a2f40;
-      flex-basis: 40%;
-      max-width: 40%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    tbody td[data-label="ОТПРАВИТЬ"]::before {
-      content: none !important;
-    }
-
-    select, button, .schema-button {
-      font-size: 13px;
-      padding: 5px 8px;
-      font-weight: 700;
-    }
-
-    tbody tr > td:last-child {
-      padding: 0;
-      border: none;
-    }
-
-    tbody tr > td:last-child .buttons-row {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      margin-top: 10px;
-      gap: 10px;
-    }
-
-    tbody tr > td:last-child .buttons-row .schema-button,
-    tbody tr > td:last-child .buttons-row button {
-      flex: 1;
-      max-width: 48%;
-      padding: 8px 10px;
-      text-align: center;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 4px;
-    }
-
-    tbody tr > td:last-child .buttons-row span.sent-text {
-      flex: 1;
-      max-width: 48%;
-      padding: 8px 10px;
-      font-weight: 700;
-      color: #444;
-      text-align: center;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .schema-button {
-      background-color: #1a2f40;
-      color: white;
-      padding: 4px 6px;
-      font-weight: 700;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    button {
-      background-color: #dc143c;
-      color: white;
-      border: none;
-      cursor: pointer;
-      user-select: none;
-      border-radius: 4px;
-    }
-
-    button:hover {
-      background-color: #a90e2e;
-    }
-
-    /* Стили для кнопок фильтрации под карточкой */
-    .card-filter-buttons {
-      display: none;
-      width: 100%;
-      gap: 10px;
-      margin-top: 10px;
-      position: relative;
-      z-index: 3;
-      order: 2;
-    }
-
-    .card-filter-buttons.visible {
-      display: flex;
-    }
-
-    .card-filter-button {
-      flex: 1;
-      padding: 8px 10px;
-      background-color: #1a2f40;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 12px;
-      text-align: center;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .card-filter-button:hover {
-      background-color: #2a3648;
-      transform: translateY(-1px);
-      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-    }
-
-    .card-filter-button:active {
-      transform: translateY(0);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-
-    /* Стиль для кнопки "Показать все задачи" */
-    .show-all-button {
-      display: none;
-      width: 96%;
-      max-width: 500px;
-      margin: 10px auto;
-      padding: 10px 15px;
-      background-color: #1a2f40;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 14px;
-      text-align: center;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .show-all-button:hover {
-      background-color: #2a3648;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-
-    .show-all-button:active {
-      transform: translateY(0);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-
-    /* Пагинация */
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: 15px;
-      gap: 10px;
-      user-select: none;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      width: 100%;
-      padding: 5px 0;
-    }
-
-    .pagination button {
-      background: linear-gradient(to bottom, #1f2937, #0d1520);
-      color: white;
-      font-weight: 700;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 12px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .pagination button:hover:not(:disabled) {
-      background: linear-gradient(to bottom, #2a3648, #111b29);
-      transform: translateY(-1px);
-      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-    }
-
-    .pagination button:active:not(:disabled) {
-      transform: translateY(1px);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-
-    .pagination button:disabled {
-      background: #a0aec0;
-      cursor: not-allowed;
-      opacity: 0.7;
-    }
-
-    .page-numbers {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: nowrap;
-      flex-shrink: 0;
-    }
-
-    .page-numbers button {
-      background: linear-gradient(to bottom, #dc143c, #b01030);
-      color: white;
-      font-weight: 700;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 12px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .page-numbers button:hover {
-      background: linear-gradient(to bottom, #e51c47, #c01238);
-      transform: translateY(-1px);
-      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-    }
-
-    .page-numbers button.active {
-      background: linear-gradient(to bottom, #1f2937, #0d1520);
-      transform: scale(1.05);
-    }
-
-    .ellipsis {
-      color: #1a2f40;
-      font-weight: 700;
-      padding: 0 5px;
-    }
-
-    .highlight {
-      background-color: #dc143c !important;
-      color: white !important;
-    }
-    
-    .schema-button i,
-    .sent-text i,
-    button i {
-      margin-right: 6px;
-    }
-
-    /* ===== НОВАЯ АНИМАЦИЯ ЗАГРУЗКИ ИЗ ПРИМЕРА ===== */
-    .loading-screen {
-      position: fixed;
-      inset: 0;
-      background: #1f2937;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 99999;
-      transition: opacity 0.3s ease;
-    }
-
-    .loading-screen.fade-out {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .loading-spinner {
-      display: inline-block;
-      width: 60px;
-      height: 60px;
-      border: 5px solid rgba(225, 29, 72, 0.2);
-      border-radius: 50%;
-      border-top-color: #e11d48;
-      animation: spin 0.8s ease-in-out infinite;
-      margin-bottom: 20px;
-    }
-
-    .loading-text {
-      color: white;
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 16px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      opacity: 0.9;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .logo-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .loading-screen img {
-      width: 80px;
-      height: 80px;
-      object-fit: contain;
-      margin-bottom: 20px;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-    }
-
-    @media (min-width: 1025px) {
-      .loading-spinner {
-        width: 70px;
-        height: 70px;
-        border-width: 6px;
-      }
-      
-      .loading-screen img {
-        width: 100px;
-        height: 100px;
-      }
-    }
-
-    /* ========== МЕДИА-ЗАПРОС ДЛЯ ПК ========== */
-    @media screen and (min-width: 768px) {
-      tbody {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      
-      .card-container {
-        margin-bottom: 0;
-      }
-      
-      tbody tr {
-        margin-bottom: 0;
-      }
-      
-      tbody tr.selected {
-        margin-bottom: 0;
-      }
-
-      #app-content {
-        max-width: 1000px;
-      }
-    }
-
-    @media screen and (min-width: 1200px) {
-      #app-content {
-        max-width: 1100px;
-      }
-    }
-  </style>
-  <!-- Подключаем Flatpickr для календаря -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #e11d48;
+            --accent-hover: #be123c;
+            --bg: #1f2937;
+            --white: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+            --transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --card-bg: #ffffff;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg);
+            font-family: 'Inter', sans-serif;
+            padding: 15px;
+            color: var(--text-dark);
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        #login, #user-info, #access-denied {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+            border: none;
+        }
+
+        #user-info {
+            display: none;
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+            text-align: left;
+            padding: 12px 15px;
+            max-width: 100%;
+            background: var(--card-bg);
+            border: none;
+        }
+
+        #user-pic {
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            object-fit: cover;
+            border: none;
+        }
+
+        .user-details p { margin: 0; font-size: 14px; font-weight: 700; color: var(--text-dark); }
+        #user-email { font-weight: 400; color: var(--text-muted); font-size: 12px; }
+
+        #logout-btn {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        #logout-btn:hover { background: var(--accent); color: white; }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            width: 100%;
+        }
+
+        .action-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: visible;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            border: none;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .action-btn {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            text-decoration: none;
+            color: inherit;
+            border-radius: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .action-btn i {
+            font-size: 26px;
+            color: #1f2937;
+            transition: var(--transition);
+        }
+
+        .action-btn span {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: center;
+            color: var(--text-dark);
+        }
+
+        .action-card:hover .action-btn i {
+            color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .sheet-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            z-index: 100;
+        }
+
+        .sheet-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .bottom-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 28px 28px 0 0;
+            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 200;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .bottom-sheet.active {
+            transform: translateY(0);
+        }
+
+        .sheet-handle {
+            width: 40px;
+            height: 5px;
+            background: var(--text-muted);
+            border-radius: 10px;
+            margin: 0 auto 20px auto;
+            opacity: 0.5;
+        }
+
+        .sheet-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            text-align: center;
+        }
+
+        .sheet-clubs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+
+        .club-sheet-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: #f8fafc;
+            border-radius: 16px;
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 600;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+            border: 1px solid #e2e8f0;
+            transform: none !important;
+            cursor: pointer;
+        }
+
+        .club-sheet-btn:hover {
+            background: #1f2937;
+            color: white;
+            border-color: #1f2937;
+        }
+
+        .club-sheet-btn i {
+            color: #1f2937;
+            font-size: 14px;
+            transition: color 0.15s ease;
+        }
+
+        .club-sheet-btn:hover i {
+            color: white;
+        }
+
+        .close-sheet-btn {
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+            padding: 16px;
+            background: none;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .close-sheet-btn:hover {
+            background: #f1f5f9;
+            border-color: var(--text-muted);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(225, 29, 72, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+        }
+
+        .action-card.pulse {
+            animation: pulse 0.8s ease;
+        }
+
+        .action-card.loading {
+            opacity: 0.7;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .action-card.loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            z-index: 3;
+        }
+
+        .action-card.loading .action-btn i {
+            color: var(--text-muted);
+        }
+
+        .disabled { 
+            opacity: 0.4; 
+            pointer-events: none; 
+            filter: grayscale(1);
+        }
+
+        .disabled .action-btn i {
+            color: var(--text-muted);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(225, 29, 72, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 0.8s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .action-grid {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 12px;
+            }
+            .action-btn { padding: 10px; }
+            .action-btn i { font-size: 24px; }
+            .action-btn span { font-size: 10px; }
+            
+            .sheet-clubs-list {
+                max-width: 100%;
+            }
+            .close-sheet-btn {
+                max-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- ЕДИНСТВЕННАЯ АНИМАЦИЯ ЗАГРУЗКИ - НОВЫЙ ДИЗАЙН ИЗ ПРИМЕРА -->
-  <div class="loading-screen" id="loadingScreen">
-    <div class="logo-wrapper">
-      <img src="https://i.postimg.cc/wjGzSY92/1.png" alt="Loading Logo">
-      <div class="loading-spinner"></div>
-      <div class="loading-text">Загрузка...</div>
-    </div>
-  </div>
 
-  <header>
-    <div class="logo">
-      <a href="https://smart-bowling.github.io/SMB/">
-        <img src="https://i.postimg.cc/wjGzSY92/1.png" alt="Logo">
-      </a>
-    </div>
-    <div class="site-name">
-      BLOCKBUSTER
-    </div>
-    <div class="user-avatar" id="userAvatar" onclick="toggleUserDropdown()">
-    </div>
-    <div class="user-dropdown" id="userDropdown">
-      <a href="#" onclick="signOut()">
-        <i class="fas fa-sign-out-alt icon-space"></i> ВЫЙТИ
-      </a>
-    </div>
-  </header>
-
-  <div id="login">
-    <div id="g_id_onload"
-         data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse"
-         data-auto_prompt="false">
-    </div>
-    <div class="g_id_signin" data-type="standard"></div>
-  </div>
-
-  <div id="app-content" style="display:none;">
-    <!-- Кнопка РЕЙТИНГ -->
-    <div class="rating-button" id="ratingButton" onclick="toggleRating()">
-      <div>РЕЙТИНГ</div>
-      <div><i class="fas fa-chevron-down"></i></div>
+<div class="container">
+    <div id="login">
+        <div style="width: 50px; height: 50px; background: #f1f5f9; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+            <i class="fas fa-shield-halved" style="font-size: 24px; color: var(--accent);"></i>
+        </div>
+        <h2 style="margin: 0 0 5px; font-weight: 800; font-size: 20px;">SMB Dashboard</h2>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Sign in to access</p>
+        <div id="g_id_onload" 
+             data-client_id="328749588235-bgfeukqogpoq2ha65j7j0vk840hctiaq.apps.googleusercontent.com" 
+             data-callback="handleCredentialResponse" 
+             data-auto_prompt="false"
+             data-auto_select="false">
+        </div>
+        <div class="g_id_signin" 
+             data-type="standard" 
+             data-shape="pill" 
+             data-theme="outline" 
+             data-text="signin_with" 
+             data-size="large" 
+             data-logo_alignment="left">
+        </div>
     </div>
 
-    <!-- Карточка с задачами - теперь кликабельная -->
-    <div class="task-summary-card" id="openTasksCard" onclick="toggleDateFilter()">
-      <div id="task-summary-label">Открытых задач</div>
-      <div class="task-count" id="openTaskCount">0</div>
+    <div id="user-info">
+        <img id="user-pic" src="" alt="Profile">
+        <div class="user-details" style="flex-grow:1">
+            <p id="user-name"></p>
+            <p id="user-email"></p>
+        </div>
+        <button id="logout-btn" onclick="signOut()"><i class="fas fa-power-off"></i></button>
     </div>
 
-    <!-- Контейнер для фильтрации по дате -->
-    <div class="date-filter-container" id="date-filter-container">
-      <div class="date-filter-label">Просмотр выполненных задач по дате</div>
-      <div class="date-input-wrapper">
-        <i class="fas fa-calendar-alt calendar-icon"></i>
-        <input type="text" class="date-filter-input" id="date-filter-input" placeholder="Выберите дату" readonly>
-      </div>
-      <button class="clear-filter-btn" id="clear-filter-btn">Сбросить фильтр</button>
+    <div class="main-content" id="main-content" style="display:none; width: 100%;">
+        <div class="action-grid">
+            <div class="action-card" id="manuals-btn">
+                <button class="action-btn" onclick="handleGeneralLink('manuals', 'https://smart-bowling.github.io/MANUALS-SMART/')">
+                    <i class="fas fa-book-open"></i>
+                    <span>Manuals</span>
+                </button>
+            </div>
+            <div class="action-card" id="store-btn">
+                <button class="action-btn" onclick="handleGeneralLink('store', 'https://smart-bowling.github.io/PARTS-STORE/')">
+                    <i class="fas fa-bag-shopping"></i>
+                    <span>Store</span>
+                </button>
+            </div>
+            <div class="action-card" id="card-parts">
+                <button class="action-btn" onclick="handleAction('parts', this)">
+                    <i class="fas fa-gears"></i>
+                    <span>Parts</span>
+                </button>
+            </div>
+            <div class="action-card" id="card-maintenance">
+                <button class="action-btn" onclick="handleAction('maintenance', this)">
+                    <i class="fas fa-screwdriver-wrench"></i>
+                    <span>Maintenance</span>
+                </button>
+            </div>
+            <div class="action-card" id="card-fps">
+                <button class="action-btn" onclick="handleAction('fps', this)">
+                    <i class="fas fa-chart-line"></i>
+                    <span>FPS</span>
+                </button>
+            </div>
+            <div class="action-card" id="card-analysis">
+                <button class="action-btn" onclick="handleAction('analysis', this)">
+                    <i class="fas fa-bowling-ball"></i>
+                    <span>Analysis</span>
+                </button>
+            </div>
+        </div>
     </div>
+</div>
 
-    <!-- КАРТОЧКИ С ОДИНАКОВОЙ ШИРИНОЙ -->
-    <div class="mechanics-rating" id="mechanicsRating">
-      <h3><i class="fas fa-trophy"></i> Рейтинг механиков за текущий месяц</h3>
-      <div id="ratingContent"></div>
-    </div>
+<!-- Bottom Sheet для выбора клуба -->
+<div class="sheet-overlay" id="sheetOverlay"></div>
+<div class="bottom-sheet" id="clubSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheetTitle">Выберите клуб</div>
+    <div class="sheet-clubs-list" id="sheetClubsList"></div>
+    <button class="close-sheet-btn" onclick="closeClubSheet()">Закрыть</button>
+</div>
 
-    <div class="winner-section" id="winnerSection">
-      <h3><i class="fas fa-crown"></i> Победитель прошлого месяца</h3>
-      <div id="winnerContent"></div>
-    </div>
+<script>
+// Конфигурация
+const SPREADSHEET_ID = '1-yiVdZYa6wJdupTiuiHvI_ht3Vu73RUjyCehZqs2cJ4';
+const SHEET_NAME = '1'; 
+const API_KEY = 'AIzaSyAXL0Hsfxy-g-AgYhnivj4x9gCB2rrtF-0';
 
-    <!-- Кнопка "Показать все задачи" -->
-    <button class="show-all-button" id="showAllButton" onclick="showAllTasks()">
-      Показать все задачи
-    </button>
-
-    <table>
-      <thead>
-        <tr>
-          <th onclick="startColumnSearch(0)">ЗАДАЧА</th>
-          <th onclick="startColumnSearch(1)">МАШИНА</th>
-          <th onclick="startColumnSearch(2)">ОТКРЫТА</th>
-          <th onclick="startColumnSearch(3)">ЗАКРЫТА</th>
-          <th onclick="startColumnSearch(4)">ВЫПоЛНИЛ</th>
-          <th>ОТПРАВИТЬ</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-
-    <div class="pagination">
-      <button onclick="prevPage()" id="prevBtn" disabled><i class="fas fa-arrow-left"></i> Назад</button>
-      <div class="page-numbers" id="pageNumbers"></div>
-      <button onclick="nextPage()" id="nextBtn">Вперёд <i class="fas fa-arrow-right"></i></button>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://npmcdn.com/flatpickr/dist/l10n/ru.js"></script>
-  <script>
-    // ===================== ИСПОЛЬЗОВАНИЕ ССЫЛОК ИЗ КОНСТАНТ =====================
-    document.querySelector('link[rel="icon"]').href = LINKS.FAVICON;
-    document.querySelector('.logo img').src = LINKS.LOGO;
-
-    // ===================== СИСТЕМА АВТОРИЗАЦИИ =====================
+// ТОЧНАЯ КАРТА СООТВЕТСТВИЙ ССЫЛОК КЛУБАМ И РАЗДЕЛАМ
+const LINK_PATTERNS = {
+    'https://smart-bowling.github.io/PARTS-KH/': { club: 'luckyStrike', type: 'parts' },
+    'https://smart-bowling.github.io/SMB-LS-KH/': { club: 'luckyStrike', type: 'maintenance' },
+    'https://smart-bowling.github.io/PS-STOP-KH/': { club: 'luckyStrike', type: 'fps' },
     
-    const API_KEY = LINKS.API_KEY;
-    const SPREADSHEET_ID = LINKS.SPREADSHEET_ID;
-    const CURRENT_SITE = LINKS.CURRENT_SITE;
+    'https://smart-bowling.github.io/PARTS-BB/': { club: 'blockbuster', type: 'parts' },
+    'https://smart-bowling.github.io/SMB-BB/': { club: 'blockbuster', type: 'maintenance' },
+    'https://smart-bowling.github.io/PS-STOP-BB/': { club: 'blockbuster', type: 'fps' },
+    'https://smart-bowling.github.io/ANALYSIS-BB/': { club: 'blockbuster', type: 'analysis' },
     
-    let currentUser = null;
+    'https://smart-bowling.github.io/PARTS-SKYMALL/': { club: 'skymall', type: 'parts' },
+    'https://smart-bowling.github.io/SMB-SKYMALL/': { club: 'skymall', type: 'maintenance' },
+    'https://smart-bowling.github.io/PS-STOP-SKYMALL/': { club: 'skymall', type: 'fps' },
+    'https://smart-bowling.github.io/ANALYSIS-SM/': { club: 'skymall', type: 'analysis' },
     
-    const loadingScreen = document.getElementById('loadingScreen');
+    'https://smart-bowling.github.io/MANUALS-SMART/': { type: 'manuals' },
+    'https://smart-bowling.github.io/PARTS-STORE/': { type: 'store' }
+};
 
-    function showLoader(show) {
-      loadingScreen.style.display = show ? 'flex' : 'none';
-    }
+// Карта ссылок для отображения в Bottom Sheet
+const linksMap = {
+    parts: [
+        {name:'Lucky Strike KH', url:'https://smart-bowling.github.io/PARTS-KH/', key:'luckyStrike'},
+        {name:'Blockbuster', url:'https://smart-bowling.github.io/PARTS-BB/', key:'blockbuster'},
+        {name:'Skymall', url:'https://smart-bowling.github.io/PARTS-SKYMALL/', key:'skymall'}
+    ],
+    maintenance: [
+        {name:'Lucky Strike KH', url:'https://smart-bowling.github.io/SMB-LS-KH/', key:'luckyStrike'},
+        {name:'Blockbuster', url:'https://smart-bowling.github.io/SMB-BB/', key:'blockbuster'},
+        {name:'Skymall', url:'https://smart-bowling.github.io/SMB-SKYMALL/', key:'skymall'}
+    ],
+    fps: [
+        {name:'Lucky Strike KH', url:'https://smart-bowling.github.io/PS-STOP-KH/', key:'luckyStrike'},
+        {name:'Blockbuster', url:'https://smart-bowling.github.io/PS-STOP-BB/', key:'blockbuster'},
+        {name:'Skymall', url:'https://smart-bowling.github.io/PS-STOP-SKYMALL/', key:'skymall'}
+    ],
+    analysis: [
+        {name:'Blockbuster', url:'https://smart-bowling.github.io/ANALYSIS-BB/', key:'blockbuster'},
+        {name:'Skymall', url:'https://smart-bowling.github.io/ANALYSIS-SM/', key:'skymall'}
+    ]
+};
 
-    function toggleUserDropdown() {
-      const menu = document.getElementById("userDropdown");
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
-    }
+// Структура разрешений пользователей
+let userPermissions = {};
+let currentUser = null;
+let permissionsLoading = false;
 
-    function loadSheetsAPI() {
-      return new Promise((resolve, reject) => {
+// Кэш разрешений из localStorage
+const PERMISSIONS_CACHE_KEY = 'userPermissionsCache';
+const CACHE_EXPIRY_KEY = 'permissionsCacheExpiry';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 минут
+
+// Загружаем Google API
+function loadSheetsAPI() {
+    return new Promise((resolve, reject) => {
         gapi.load('client', {
-          callback: resolve,
-          onerror: () => reject('Ошибка загрузки Google API'),
-          timeout: 10000,
-          ontimeout: () => reject('Таймаут загрузки Google API')
+            callback: () => resolve(),
+            onerror: () => reject('Ошибка загрузки Google API'),
+            timeout: 8000,
+            ontimeout: () => reject('Таймаут загрузки Google API')
         });
-      });
-    }
+    });
+}
 
-    function parseJwt(token) {
-      try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => 
-          '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-        return JSON.parse(jsonPayload);
-      } catch (e) {
-        return {};
-      }
-    }
-
-    function handleCredentialResponse(response) {
-      showLoader(true);
-      try {
-        const payload = parseJwt(response.credential);
-        currentUser = {
-          email: payload.email.toLowerCase().trim(),
-          name: payload.name,
-          picture: payload.picture
+// Сохранить разрешения в кэш
+function cachePermissions(email, permissions) {
+    try {
+        const cacheData = {
+            email: email,
+            permissions: permissions,
+            timestamp: Date.now()
         };
-        updateUserAvatar(currentUser);
+        localStorage.setItem(PERMISSIONS_CACHE_KEY, JSON.stringify(cacheData));
+        localStorage.setItem(CACHE_EXPIRY_KEY, Date.now() + CACHE_DURATION);
+    } catch (e) {
+        console.warn('Failed to cache permissions:', e);
+    }
+}
+
+// Загрузить разрешения из кэша
+function loadCachedPermissions(email) {
+    try {
+        const cached = localStorage.getItem(PERMISSIONS_CACHE_KEY);
+        const expiry = localStorage.getItem(CACHE_EXPIRY_KEY);
+        
+        if (cached && expiry && Date.now() < parseInt(expiry)) {
+            const data = JSON.parse(cached);
+            if (data.email === email) {
+                console.log('Loaded permissions from cache for:', email);
+                return data.permissions;
+            }
+        }
+    } catch (e) {
+        console.warn('Failed to load cached permissions:', e);
+    }
+    return null;
+}
+
+// Обработка ответа Google
+function handleCredentialResponse(response) {
+    console.log("Google response received");
+    
+    try {
+        const payload = parseJwt(response.credential);
+        console.log("User email:", payload.email);
+        
+        currentUser = {
+            email: payload.email.toLowerCase().trim(),
+            name: payload.name,
+            picture: payload.picture
+        };
+        
+        // Сначала пробуем загрузить из кэша
+        const cachedPerms = loadCachedPermissions(currentUser.email);
+        if (cachedPerms) {
+            userPermissions[currentUser.email] = cachedPerms;
+            loginUser(currentUser, true); // true = из кэша
+        }
+        
+        // Затем загружаем свежие данные
+        showLoading(true);
         initAndCheckEmail();
-      } catch (e) {
-        showLoader(false);
+        
+    } catch (e) {
+        console.error("Error parsing Google response:", e);
+        showLoading(false);
         alert('Ошибка аутентификации');
-      }
     }
+}
 
-    function updateUserAvatar(user) {
-      const avatarContainer = document.getElementById('userAvatar');
-      avatarContainer.innerHTML = user?.picture 
-        ? `<img src="${user.picture}" alt="Avatar">` 
-        : '<i class="fas fa-user"></i>';
-    }
-
-    async function initAndCheckEmail() {
-      try {
+// Инициализация API и проверка email
+async function initAndCheckEmail() {
+    try {
         await loadSheetsAPI();
         await gapi.client.init({
-          apiKey: API_KEY,
-          discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
-        });
-        await checkEmailInSheet(currentUser.email);
-      } catch (error) {
-        showLoader(false);
-        alert('Ошибка инициализации Google API: ' + error);
-      }
-    }
-
-    async function checkEmailInSheet(email) {
-      try {
-        const response = await gapi.client.sheets.spreadsheets.values.get({
-          spreadsheetId: SPREADSHEET_ID,
-          range: '1!A:Z',
-        });
-        
-        const rows = response.result.values || [];
-        let hasAccess = false;
-        
-        for (let i = 0; i < rows.length; i++) {
-          if (!rows[i]?.[0]) continue;
-          if (rows[i][0].toLowerCase().trim() === email) {
-            for (let j = 1; j < rows[i].length; j++) {
-              const siteUrl = rows[i][j]?.trim().split('?')[0].split('#')[0] || '';
-              if (siteUrl === CURRENT_SITE || siteUrl.includes('SMB-BB')) {
-                hasAccess = true;
-                break;
-              }
-            }
-            break;
-          }
-        }
-        
-        if (hasAccess) {
-          loginUser(currentUser);
-        } else {
-          showLoader(false);
-          alert('Доступ запрещен');
-        }
-      } catch (error) {
-        showLoader(false);
-        alert('Ошибка доступа к таблице');
-      }
-    }
-
-    function loginUser(payload) {
-      document.getElementById('login').style.display = 'none';
-      document.getElementById('app-content').style.display = 'block';
-      
-      localStorage.setItem('userLoggedIn', 'true');
-      localStorage.setItem('userEmail', payload.email.toLowerCase());
-      localStorage.setItem('userName', payload.name);
-      localStorage.setItem('userPic', payload.picture);
-      
-      loadSheetData().finally(() => {
-        showLoader(false);
-        loadingScreen.classList.add('fade-out');
-      });
-    }
-
-    function signOut() {
-      localStorage.clear();
-      sessionStorage.clear();
-      location.reload();
-    }
-
-    document.addEventListener('click', function(e) {
-      const userDropdown = document.getElementById("userDropdown");
-      const userAvatar = document.getElementById("userAvatar");
-      
-      if (userDropdown.style.display === 'block' && !userAvatar.contains(e.target) && !userDropdown.contains(e.target)) {
-        userDropdown.style.display = 'none';
-      }
-    });
-
-    // ===================== ОСТАЛЬНОЙ КОД =====================
-    
-    const GAS_URL = LINKS.GAS_URL;
-    let fullData = [];
-    let filteredData = [];
-    let isFiltered = false;
-    let currentFilterType = null;
-    let currentFilterValue = null;
-    let currentPage = 1;
-    const rowsPerPage = 20;
-    let activeSearchColumn = null;
-    let activeSearchText = "";
-    let selectedRowId = null;
-    let selectedRowData = null;
-    let isRatingVisible = false;
-    let isDateFilterVisible = false;
-    let datePicker = null;
-    let isDateFilterActive = false;
-    let currentFilterDate = '';
-
-    document.addEventListener('DOMContentLoaded', function() {
-      const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
-      const email = localStorage.getItem('userEmail');
-      
-      if (isLoggedIn && email) {
-        document.getElementById('login').style.display = 'none';
-        document.getElementById('app-content').style.display = 'block';
-        
-        currentUser = {
-          email: email,
-          name: localStorage.getItem('userName'),
-          picture: localStorage.getItem('userPic')
-        };
-        
-        updateUserAvatar(currentUser);
-        showLoader(true);
-        
-        loadSheetsAPI()
-          .then(() => gapi.client.init({
             apiKey: API_KEY,
             discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
-          }))
-          .then(() => checkEmailInSheet(email))
-          .catch(error => {
-            showLoader(false);
-            alert('Ошибка восстановления сессии');
-            signOut();
-          });
-      } else {
-        document.getElementById('login').style.display = 'block';
-        showLoader(false);
-        loadingScreen.classList.add('fade-out');
-      }
-      
-      document.addEventListener('click', function(e) {
-        const dateFilterContainer = document.getElementById('date-filter-container');
-        const openTasksCard = document.getElementById('openTasksCard');
+        });
         
-        if (!e.target.closest('#openTasksCard') && 
-            !e.target.closest('#date-filter-container') && 
-            dateFilterContainer.classList.contains('show')) {
-          toggleDateFilter();
+        await checkEmailInSheet(currentUser.email);
+        
+    } catch (error) {
+        console.error('API initialization error:', error);
+        showLoading(false);
+        
+        // Если есть кэш, продолжаем работу с ним
+        const cached = loadCachedPermissions(currentUser.email);
+        if (cached) {
+            console.log('Using cached permissions after API error');
+            userPermissions[currentUser.email] = cached;
+            loginUser(currentUser, true);
+        } else {
+            alert('Ошибка инициализации Google API: ' + error);
         }
-      });
-      
-      initDatePicker();
-      
-      document.getElementById('clear-filter-btn').addEventListener('click', clearDateFilter);
+    }
+}
+
+// Проверка email в Google Sheets
+async function checkEmailInSheet(email) {
+    try {
+        const response = await gapi.client.sheets.spreadsheets.values.get({
+            spreadsheetId: SPREADSHEET_ID,
+            range: `${SHEET_NAME}!A:Z`,
+        });
+        
+        const rows = response.result.values;
+        if (!rows || rows.length === 0) {
+            showLoading(false);
+            alert('Таблица пуста');
+            return;
+        }
+        
+        // Ищем email в колонке A
+        let foundRow = null;
+        
+        for (let i = 0; i < rows.length; i++) {
+            if (!rows[i][0]) continue;
+            
+            const rowEmail = rows[i][0].toLowerCase().trim();
+            if (rowEmail === email) {
+                foundRow = rows[i];
+                break;
+            }
+        }
+        
+        if (foundRow) {
+            // Создаем структуру разрешений
+            const permissions = {
+                manuals: false,
+                store: false,
+                luckyStrike: { parts: false, maintenance: false, fps: false, analysis: false },
+                blockbuster: { parts: false, maintenance: false, fps: false, analysis: false },
+                skymall: { parts: false, maintenance: false, fps: false, analysis: false }
+            };
+            
+            // ТОЧНОЕ СКАНИРОВАНИЕ ССЫЛОК
+            for (let j = 1; j < foundRow.length; j++) {
+                const cellValue = foundRow[j];
+                if (!cellValue || cellValue.trim() === '') continue;
+                
+                const cleanUrl = cellValue.trim().split('?')[0].split('#')[0];
+                console.log(`Scanning URL: ${cleanUrl}`);
+                
+                // Проверяем точное соответствие с паттернами
+                if (LINK_PATTERNS[cleanUrl]) {
+                    const match = LINK_PATTERNS[cleanUrl];
+                    
+                    if (match.type === 'manuals') {
+                        permissions.manuals = true;
+                        console.log(`✅ Matched: manuals`);
+                    } else if (match.type === 'store') {
+                        permissions.store = true;
+                        console.log(`✅ Matched: store`);
+                    } else if (match.club) {
+                        permissions[match.club][match.type] = true;
+                        console.log(`✅ Matched: ${match.club} - ${match.type}`);
+                    }
+                } else {
+                    console.log(`❌ No exact match for: ${cleanUrl}`);
+                }
+            }
+            
+            // Сохраняем в кэш
+            cachePermissions(email, permissions);
+            
+            // Обновляем разрешения
+            userPermissions[email] = permissions;
+            console.log('Final permissions:', permissions);
+            
+            // Если пользователь уже залогинен (из кэша), обновляем разрешения
+            if (document.getElementById('main-content').style.display === 'block') {
+                applyPermissions(email);
+            } else {
+                loginUser(currentUser);
+            }
+            
+            showLoading(false);
+        } else {
+            showLoading(false);
+            
+            // Проверяем кэш на случай ошибки
+            const cached = loadCachedPermissions(email);
+            if (cached) {
+                console.log('Email not found but using cached permissions');
+                userPermissions[email] = cached;
+                loginUser(currentUser, true);
+            } else {
+                alert('Доступ запрещен: Ваш email не найден в таблице');
+            }
+        }
+        
+    } catch (error) {
+        console.error('Sheets API error:', error);
+        showLoading(false);
+        
+        // При ошибке API используем кэш
+        const cached = loadCachedPermissions(email);
+        if (cached) {
+            console.log('Using cached permissions after API error');
+            userPermissions[email] = cached;
+            loginUser(currentUser, true);
+        } else {
+            let errorMessage = 'Ошибка доступа к таблице';
+            if (error.result && error.result.error && error.result.error.message) {
+                errorMessage += ': ' + error.result.error.message;
+            }
+            alert(errorMessage);
+        }
+    }
+}
+
+// Функция входа пользователя
+function loginUser(payload, fromCache = false) {
+    console.log("Logging in user:", payload.email, fromCache ? '(from cache)' : '');
+    
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('user-info').style.display = 'flex';
+    document.getElementById('main-content').style.display = 'block';
+    
+    document.getElementById('user-pic').src = payload.picture;
+    document.getElementById('user-name').textContent = payload.name;
+    document.getElementById('user-email').textContent = payload.email;
+    
+    localStorage.setItem('userLoggedIn', 'true');
+    localStorage.setItem('userEmail', payload.email.toLowerCase());
+    localStorage.setItem('userName', payload.name);
+    localStorage.setItem('userPic', payload.picture);
+    
+    // Мгновенно применяем разрешения
+    applyPermissions(payload.email.toLowerCase());
+    
+    if (!fromCache) {
+        showLoading(false);
+    }
+}
+
+// Показать/скрыть индикатор загрузки
+function showLoading(show) {
+    const loginDiv = document.getElementById('login');
+    permissionsLoading = show;
+    
+    if (show) {
+        if (!loginDiv.hasAttribute('data-original')) {
+            loginDiv.setAttribute('data-original', loginDiv.innerHTML);
+        }
+        loginDiv.innerHTML = '<div style="padding: 40px; text-align: center;"><div class="loading-spinner"></div><br><span style="color: var(--text-muted); margin-top: 15px; display: block;">Проверка доступа...</span></div>';
+    } else {
+        if (loginDiv.getAttribute('data-original') && document.getElementById('login').style.display !== 'none') {
+            loginDiv.innerHTML = loginDiv.getAttribute('data-original');
+            
+            if (window.google && google.accounts && google.accounts.id) {
+                google.accounts.id.renderButton(
+                    document.querySelector('.g_id_signin'),
+                    { 
+                        type: 'standard', 
+                        shape: 'pill', 
+                        theme: 'outline', 
+                        text: 'signin_with', 
+                        size: 'large', 
+                        logo_alignment: 'left' 
+                    }
+                );
+            }
+        }
+    }
+}
+
+// Применение разрешений
+function applyPermissions(email) {
+    const p = userPermissions[email];
+    if (!p) {
+        // Если разрешений нет, показываем кнопки как недоступные
+        document.querySelectorAll('.action-card').forEach(card => {
+            card.classList.add('loading');
+        });
+        return;
+    }
+    
+    // Убираем состояние загрузки
+    document.querySelectorAll('.action-card').forEach(card => {
+        card.classList.remove('loading');
     });
+    
+    // Применяем разрешения
+    document.getElementById('manuals-btn').classList.toggle('disabled', !p.manuals);
+    document.getElementById('store-btn').classList.toggle('disabled', !p.store);
+    
+    Object.keys(linksMap).forEach(type => {
+        const hasAccess = linksMap[type].some(item => p[item.key] && p[item.key][type]);
+        document.getElementById(`card-${type}`).classList.toggle('disabled', !hasAccess);
+    });
+}
 
-    function toggleRating() {
-      const ratingButton = document.getElementById('ratingButton');
-      const mechanicsRating = document.getElementById('mechanicsRating');
-      const winnerSection = document.getElementById('winnerSection');
-      
-      isRatingVisible = !isRatingVisible;
-      
-      if (isRatingVisible) {
-        ratingButton.classList.add('expanded');
-        mechanicsRating.style.display = 'block';
-        winnerSection.style.display = 'block';
-      } else {
-        ratingButton.classList.remove('expanded');
-        mechanicsRating.style.display = 'none';
-        winnerSection.style.display = 'none';
-      }
-    }
-
-    function toggleDateFilter() {
-      const openTasksCard = document.getElementById('openTasksCard');
-      const dateFilterContainer = document.getElementById('date-filter-container');
-      
-      isDateFilterVisible = !isDateFilterVisible;
-      
-      if (isDateFilterVisible) {
-        openTasksCard.classList.add('expanded');
-        dateFilterContainer.classList.add('show');
-      } else {
-        openTasksCard.classList.remove('expanded');
-        dateFilterContainer.classList.remove('show');
-        if (isDateFilterActive) {
-          clearDateFilter();
+// Обработка общих ссылок (Manuals и Store)
+function handleGeneralLink(type, url) {
+    const email = localStorage.getItem('userEmail');
+    const p = userPermissions[email];
+    
+    if (!p) {
+        if (permissionsLoading) {
+            alert('Пожалуйста, подождите, проверка доступа...');
+        } else {
+            alert('Ошибка: разрешения не найдены');
         }
-      }
-    }
-
-    function initDatePicker() {
-      const dateInput = document.getElementById('date-filter-input');
-      
-      if (datePicker) {
-        datePicker.destroy();
-      }
-      
-      datePicker = flatpickr(dateInput, {
-        locale: "ru",
-        dateFormat: "d.m.Y",
-        allowInput: false,
-        clickOpens: true,
-        disableMobile: false,
-        onChange: function(selectedDates, dateStr, instance) {
-          if (dateStr) {
-            const formattedDate = dateStr;
-            filterTasksByDate(formattedDate);
-          }
-        }
-      });
-      
-      dateInput.value = '';
-    }
-
-    function filterTasksByDate(date) {
-      if (!date || date === '') {
-        clearDateFilter();
         return;
-      }
-      
-      isDateFilterActive = true;
-      currentFilterDate = date;
-      
-      const completedTasksCount = countCompletedTasksByDate(date);
-      
-      updateTaskSummaryCard(date, completedTasksCount);
-      
-      filteredData = fullData.filter(row => {
-        return row[4] === date && row[5] && row[5].trim() !== '';
-      });
-      
-      filteredData.sort((a, b) => {
-        const dateA = parseDate(a[4]);
-        const dateB = parseDate(b[4]);
-        return dateB - dateA;
-      });
-      
-      isFiltered = true;
-      currentFilterType = 'date';
-      currentFilterValue = date;
-      
-      currentPage = 1;
-      renderFilteredPage(currentPage);
-      
-      document.getElementById('showAllButton').style.display = 'block';
     }
-
-    function countCompletedTasksByDate(date) {
-      if (!fullData || fullData.length === 0) return 0;
-      
-      return fullData.filter(row => {
-        return row[4] === date && row[5] && row[5].trim() !== '';
-      }).length;
+    
+    if ((type === 'manuals' && p.manuals) || (type === 'store' && p.store)) {
+        window.location.href = url;
     }
+}
 
-    function parseDate(dateStr) {
-      if (!dateStr || dateStr === '-') return new Date(0);
-      
-      const parts = dateStr.split('.');
-      if (parts.length !== 3) return new Date(0);
-      
-      const day = parseInt(parts[0]);
-      const month = parseInt(parts[1]) - 1;
-      const year = parseInt(parts[2]);
-      
-      return new Date(year, month, day);
-    }
-
-    function clearDateFilter() {
-      isDateFilterActive = false;
-      currentFilterDate = '';
-      
-      const dateInput = document.getElementById('date-filter-input');
-      if (dateInput) {
-        dateInput.value = '';
-      }
-      
-      updateOpenTaskCard(fullData);
-      
-      showAllTasks();
-    }
-
-    function updateOpenTaskCard(data) {
-      const openCount = data.filter(row => !row[5]).length;
-      document.getElementById("openTaskCount").textContent = openCount;
-      document.getElementById("task-summary-label").textContent = "Открытых задач";
-    }
-
-    function updateTaskSummaryCard(date, count) {
-      document.getElementById("openTaskCount").textContent = count;
-      document.getElementById("task-summary-label").textContent = `Выполненные задачи за дату: ${date}`;
-    }
-
-    async function loadSheetData() {
-      try {
-        const response = await fetch(`${GAS_URL}?action=getData`);
-        if (!response.ok) throw new Error('Network response was not ok');
-        fullData = await response.json();
-        
-        fullData.sort((a, b) => {
-          const aIsOpen = !a[5];
-          const bIsOpen = !b[5];
-          
-          if (aIsOpen && !bIsOpen) return -1;
-          if (!aIsOpen && bIsOpen) return 1;
-          return 0;
-        });
-        
-        updateOpenTaskCard(fullData);
-        updateMechanicsRating(fullData);
-        if (fullData.length === 0) {
-          document.getElementById("tableBody").innerHTML = "<tr><td colspan='6'>Нет задач</td></tr>";
-          return;
+// Обработка действия для Parts, Maintenance, FPS, Analysis
+function handleAction(type, buttonElement) {
+    const email = localStorage.getItem('userEmail');
+    const p = userPermissions[email];
+    
+    if (!p) {
+        if (permissionsLoading) {
+            alert('Пожалуйста, подождите, проверка доступа...');
+        } else {
+            alert('Ошибка: разрешения не найдены');
         }
-        renderPage(currentPage);
-      } catch (e) {
-        document.getElementById("tableBody").innerHTML = "<tr><td colspan='6'>Ошибка загрузки данных</td></tr>";
-        console.error(e);
-      }
+        return;
     }
-
-    function updateMechanicsRating(data) {
-      const ratingContent = document.getElementById('ratingContent');
-      const winnerContent = document.getElementById('winnerContent');
-      
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth();
-      const currentYear = currentDate.getFullYear();
-      
-      let prevMonth = currentMonth - 1;
-      let prevYear = currentYear;
-      if (prevMonth < 0) {
-        prevMonth = 11;
-        prevYear = currentYear - 1;
-      }
-      
-      const monthNames = [
-        'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-      ];
-      
-      const currentMonthStats = {};
-      const previousMonthStats = {};
-      
-      data.forEach(row => {
-        if (row[4] && row[4].trim() !== '') {
-          try {
-            const dateParts = row[4].split('.');
-            if (dateParts.length === 3) {
-              const day = parseInt(dateParts[0]);
-              const month = parseInt(dateParts[1]) - 1;
-              const year = parseInt(dateParts[2]);
-              
-              const mechanic = row[5];
-              
-              if (mechanic && (mechanic === 'МЕХАНИК(1)' || mechanic === 'МЕХАНИК(2)')) {
-                if (month === currentMonth && year === currentYear) {
-                  currentMonthStats[mechanic] = (currentMonthStats[mechanic] || 0) + 1;
-                }
-                if (month === prevMonth && year === prevYear) {
-                  previousMonthStats[mechanic] = (previousMonthStats[mechanic] || 0) + 1;
-                }
-              }
-            }
-          } catch (e) {
-            console.error('Ошибка парсинга даты:', row[4], e);
-          }
-        }
-      });
-      
-      const currentMonthArray = Object.entries(currentMonthStats).map(([name, count]) => ({
-        name,
-        count
-      }));
-      
-      currentMonthArray.sort((a, b) => b.count - a.count);
-      
-      if (currentMonthArray.length > 0) {
-        ratingContent.innerHTML = '';
+    
+    const available = linksMap[type].filter(item => p[item.key] && p[item.key][type]);
+    
+    if (available.length === 0) {
+        alert('Нет доступных ресурсов для этого раздела');
+        return;
+    }
+    
+    if (available.length === 1) {
+        window.location.href = available[0].url;
+    } else if (available.length > 1) {
+        const card = buttonElement.closest('.action-card');
         
-        currentMonthArray.forEach((mechanic, index) => {
-          const place = index + 1;
-          const ratingItem = document.createElement('div');
-          ratingItem.className = 'rating-item';
-          
-          let placeClass = 'place-other';
-          if (place === 1) placeClass = 'place-1';
-          else if (place === 2) placeClass = 'place-2';
-          else if (place === 3) placeClass = 'place-3';
-          
-          ratingItem.innerHTML = `
-            <div class="rating-place">
-              <div class="place-badge ${placeClass}">${place}</div>
-              <span class="mechanic-name">${mechanic.name}</span>
-            </div>
-            <div class="task-count">${mechanic.count}</div>
-          `;
-          
-          ratingContent.appendChild(ratingItem);
-        });
-      } else {
-        ratingContent.innerHTML = `<div style="text-align: center; color: #666; padding: 20px;">Нет данных за ${monthNames[currentMonth]}</div>`;
-      }
-      
-      const previousMonthArray = Object.entries(previousMonthStats).map(([name, count]) => ({
-        name,
-        count
-      }));
-      
-      previousMonthArray.sort((a, b) => b.count - a.count);
-      
-      if (previousMonthArray.length > 0 && previousMonthArray[0].count > 0) {
-        const winner = previousMonthArray[0];
-        winnerContent.innerHTML = `
-          <div class="winner-item">
-            <div class="winner-place">
-              <i class="fas fa-wrench wrench-icon"></i>
-              <span class="winner-name">${winner.name}</span>
-            </div>
-            <div class="winner-count">${winner.count}</div>
-          </div>
-        `;
-      } else {
-        winnerContent.innerHTML = `<div style="text-align: center; color: #666; padding: 8px 0;">Нет данных за ${monthNames[prevMonth]}</div>`;
-      }
+        card.classList.add('pulse');
+        setTimeout(() => card.classList.remove('pulse'), 800);
+        
+        showClubSheet(type, available);
     }
+}
 
-    async function updateSheet(rowNumber, doneByValue) {
-      // Показываем лоадер перед отправкой
-      showLoader(true);
-      try {
-        const params = new URLSearchParams({
-          action: 'update',
-          rowNumber,
-          doneByValue
-        });
-        const response = await fetch(`${GAS_URL}?${params.toString()}`);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const updatedRow = await response.json();
+// Показать Bottom Sheet
+function showClubSheet(type, clubs) {
+    const sheet = document.getElementById('clubSheet');
+    const overlay = document.getElementById('sheetOverlay');
+    const title = document.getElementById('sheetTitle');
+    const listContainer = document.getElementById('sheetClubsList');
+    
+    let typeName = {
+        parts: 'Запчасти',
+        maintenance: 'Обслуживание',
+        fps: 'FPS',
+        analysis: 'Аналитика'
+    }[type] || type;
+    
+    title.textContent = `Выберите клуб: ${typeName}`;
+    
+    listContainer.innerHTML = '';
+    clubs.forEach(club => {
+        const btn = document.createElement('button');
+        btn.className = 'club-sheet-btn';
+        btn.innerHTML = `${club.name} <i class="fas fa-arrow-right"></i>`;
+        btn.onclick = function() {
+            window.location.href = club.url;
+        };
+        listContainer.appendChild(btn);
+    });
+    
+    sheet.classList.add('active');
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
 
-        const index = fullData.findIndex(row => row[0] === rowNumber);
-        if (index !== -1) fullData[index] = updatedRow;
+// Закрыть Bottom Sheet
+function closeClubSheet() {
+    document.getElementById('clubSheet').classList.remove('active');
+    document.getElementById('sheetOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+}
 
-        fullData.sort((a, b) => {
-          const aIsOpen = !a[5];
-          const bIsOpen = !b[5];
-          
-          if (aIsOpen && !bIsOpen) return -1;
-          if (!aIsOpen && bIsOpen) return 1;
-          return 0;
-        });
+// Парсинг JWT
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        console.error('Error parsing JWT:', e);
+        return {};
+    }
+}
 
-        if (isFiltered) {
-          if (currentFilterType === 'machine') {
-            filteredData = fullData.filter(row => 
-              row[1] === currentFilterValue && !row[5]
-            );
-          } else if (currentFilterType === 'task') {
-            filteredData = fullData.filter(row => 
-              row[2] === currentFilterValue && !row[5]
-            );
-          } else if (currentFilterType === 'date') {
-            filteredData = fullData.filter(row => {
-              return row[4] === currentFilterDate && row[5] && row[5].trim() !== '';
+// Выход
+function signOut() { 
+    console.log("Signing out");
+    localStorage.clear();
+    sessionStorage.clear();
+    location.reload(); 
+}
+
+// Проверка сессии при загрузке
+window.addEventListener('load', function() {
+    console.log("Page loaded, checking localStorage...");
+    
+    const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+    const email = localStorage.getItem('userEmail');
+    const name = localStorage.getItem('userName');
+    const pic = localStorage.getItem('userPic');
+    
+    if (isLoggedIn && email) {
+        console.log("Found stored session for:", email);
+        
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('user-info').style.display = 'flex';
+        
+        document.getElementById('user-name').textContent = name || 'User';
+        document.getElementById('user-email').textContent = email;
+        if (pic) document.getElementById('user-pic').src = pic;
+        
+        currentUser = {
+            email: email,
+            name: name,
+            picture: pic
+        };
+        
+        // Сначала пробуем загрузить из кэша
+        const cachedPerms = loadCachedPermissions(email);
+        if (cachedPerms) {
+            userPermissions[email] = cachedPerms;
+            applyPermissions(email);
+        } else {
+            // Показываем кнопки в состоянии загрузки
+            document.querySelectorAll('.action-card').forEach(card => {
+                card.classList.add('loading');
             });
-          }
-        }
-
-        updateOpenTaskCard(fullData);
-        updateMechanicsRating(fullData);
-        
-        if (isFiltered) {
-          renderFilteredPage(currentPage);
-        } else {
-          renderPage(currentPage, false);
         }
         
-        return Promise.resolve();
-      } catch (e) {
-        alert('Ошибка при обновлении данных');
-        console.error(e);
-        return Promise.reject(e);
-      } finally {
-        // Скрываем лоадер после завершения
-        showLoader(false);
-      }
-    }
-
-    function renderPage(page, scrollToTop = true) {
-      if (scrollToTop) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-      
-      const tableBody = document.getElementById("tableBody");
-      tableBody.innerHTML = "";
-
-      const start = (page - 1) * rowsPerPage;
-      const end = start + rowsPerPage;
-      const pageData = isFiltered ? filteredData.slice(start, end) : fullData.slice(start, end);
-
-      pageData.forEach((row, index) => {
-        const cardContainer = document.createElement("div");
-        cardContainer.className = "card-container";
-        cardContainer.id = `card-container-${row[0]}`;
+        // Затем загружаем свежие данные
+        showLoading(true);
         
-        const filterButtons = document.createElement("div");
-        filterButtons.className = "card-filter-buttons";
-        filterButtons.id = `filter-buttons-${row[0]}`;
-        filterButtons.innerHTML = `
-          <button class="card-filter-button" onclick="filterByMachineFromCard(${row[0]})">
-            Задачи с этой машиной
-          </button>
-          <button class="card-filter-button" onclick="filterByTaskFromCard(${row[0]})">
-            Машины с этой задачей
-          </button>
-        `;
+        loadSheetsAPI()
+            .then(() => gapi.client.init({
+                apiKey: API_KEY,
+                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+            }))
+            .then(() => checkEmailInSheet(email))
+            .catch(error => {
+                console.error('Session restore error:', error);
+                showLoading(false);
+                
+                // Если есть кэш, продолжаем работу с ним
+                if (cachedPerms) {
+                    console.log('Using cached permissions after error');
+                } else {
+                    alert('Ошибка восстановления сессии');
+                    signOut();
+                }
+            });
         
-        const tr = document.createElement("tr");
-        tr.id = `card-${row[0]}`;
-        const schemaLink = row[2]
-          ? `<a href="${row[2]}" target="_blank" class="schema-button">
-               <i class="fas fa-file-alt"></i>Открыть
-             </a>`
-          : "";
-
-        tr.innerHTML = `
-          <td data-label="ЗАДАЧА">${row[2] ? `
-            <a href="${row[2]}" target="_blank" class="schema-button">
-              <i class="fas fa-file-alt"></i>Открыть
-            </a>` : "Нет схемы"}
-          </td>
-          <td data-label="МАШИНА">${row[1]}</td>
-          <td data-label="ОТКРЫТА">${row[3]}</td>
-          <td data-label="ЗАКРЫТА">${row[4]}</td>
-          ${row[5]
-            ? `<td data-label="ВЫПОЛНИЛ">${row[5]}</td>`
-            : `<td data-label="ВЫПОЛНИЛ" id="gText_${row[0]}">
-                <select id="g_${row[0]}">
-                  <option value="" selected disabled></option>
-                  <option value="МЕХАНИК(1)">МЕХАНИК(1)</option>
-                  <option value="МЕХАНИК(2)">МЕХАНИК(2)</option>
-                </select>
-              </td>`}
-          <td data-label="ОТПРАВИТЬ">
-            <div class="buttons-row">
-              ${schemaLink}
-              ${row[5]
-                ? `<span class="sent-text"><i class="fas fa-check-circle"></i>Отправлено</span>`
-                : `<button id="btn_${row[0]}" onclick="validateAndSend(${row[0]});">
-                     <i class="fas fa-paper-plane"></i>Отправить
-                   </button>`}
-            </div>
-          </td>`;
-        
-        cardContainer.appendChild(tr);
-        cardContainer.appendChild(filterButtons);
-        
-        tr.addEventListener('click', function(e) {
-          if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.closest('button') || e.target.closest('.schema-button')) {
-            return;
-          }
-          
-          const rowId = row[0];
-          
-          if (selectedRowId === rowId) {
-            hideCardButtons(rowId);
-            selectedRowId = null;
-            selectedRowData = null;
-            tr.classList.remove('selected');
-            return;
-          }
-          
-          if (selectedRowId) {
-            hideCardButtons(selectedRowId);
-            const prevCard = document.getElementById(`card-${selectedRowId}`);
-            if (prevCard) prevCard.classList.remove('selected');
-          }
-          
-          selectedRowData = row;
-          selectedRowId = rowId;
-          
-          showCardButtons(rowId);
-          
-          tr.classList.add('selected');
-        });
-        
-        const openButton = tr.querySelector('.schema-button');
-        if (openButton) {
-          openButton.addEventListener('click', function(e) {
-            const rowId = row[0];
-            
-            if (selectedRowId === rowId) {
-              hideCardButtons(rowId);
-              selectedRowId = null;
-              selectedRowData = null;
-              tr.classList.remove('selected');
-              
-              window.open(this.href, '_blank');
-              e.preventDefault();
-              return;
-            }
-            
-            if (selectedRowId) {
-              hideCardButtons(selectedRowId);
-              const prevCard = document.getElementById(`card-${selectedRowId}`);
-              if (prevCard) prevCard.classList.remove('selected');
-            }
-            
-            selectedRowData = row;
-            selectedRowId = rowId;
-            
-            showCardButtons(rowId);
-            
-            tr.classList.add('selected');
-            
-            window.open(this.href, '_blank');
-            
-            e.preventDefault();
-          });
-        }
-        
-        tableBody.appendChild(cardContainer);
-      });
-
-      applyHighlight();
-      renderPageNumbers();
-      
-      if (isFiltered) {
-        document.getElementById("prevBtn").disabled = currentPage === 1;
-        document.getElementById("nextBtn").disabled = currentPage * rowsPerPage >= filteredData.length;
-        document.getElementById('showAllButton').style.display = 'block';
-      } else {
-        document.getElementById("prevBtn").disabled = currentPage === 1;
-        document.getElementById("nextBtn").disabled = currentPage * rowsPerPage >= fullData.length;
-        document.getElementById('showAllButton').style.display = 'none';
-      }
+    } else {
+        console.log("No stored session, showing login button");
+        document.getElementById('login').style.display = 'block';
     }
+});
 
-    function showCardButtons(rowId) {
-      const filterButtons = document.getElementById(`filter-buttons-${rowId}`);
-      if (filterButtons) {
-        filterButtons.style.display = 'flex';
-        filterButtons.classList.add('visible');
-      }
-    }
-
-    function hideCardButtons(rowId) {
-      const filterButtons = document.getElementById(`filter-buttons-${rowId}`);
-      if (filterButtons) {
-        filterButtons.style.display = 'none';
-        filterButtons.classList.remove('visible');
-      }
-    }
-
-    function renderFilteredPage(page) {
-      const dataToUse = isFiltered ? filteredData : fullData;
-      const totalPages = Math.ceil(dataToUse.length / rowsPerPage);
-      
-      if (page > totalPages && totalPages > 0) {
-        currentPage = totalPages;
-      }
-      
-      renderPage(currentPage, true);
-    }
-
-    function validateAndSend(rowNumber) {
-      const gSelect = document.getElementById(`g_${rowNumber}`);
-
-      if (!gSelect || !gSelect.value) {
-        alert("Заполните все формы!");
-        return;
-      }
-
-      const scrollPosition = window.scrollY || document.documentElement.scrollTop;
-      
-      updateSheet(rowNumber, gSelect.value).then(() => {
-        window.scrollTo(0, scrollPosition);
-      });
-    }
-
-    function startColumnSearch(columnIndex) {
-      const searchText = prompt("Введите текст для поиска:");
-      if (searchText === null || searchText.trim() === "") {
-        activeSearchColumn = null;
-        activeSearchText = "";
-      } else {
-        activeSearchColumn = columnIndex;
-        activeSearchText = searchText.trim().toLowerCase();
-      }
-      renderPage(currentPage);
-    }
-
-    function applyHighlight() {
-      if (activeSearchColumn === null || activeSearchText === "") return;
-      const rows = document.getElementById("tableBody").getElementsByTagName("tr");
-      for (let row of rows) {
-        const cells = row.getElementsByTagName("td");
-        if (cells.length > activeSearchColumn) {
-          const cell = cells[activeSearchColumn];
-          const text = cell.textContent || cell.innerText;
-          if (text.toLowerCase().includes(activeSearchText)) {
-            cell.classList.add("highlight");
-          } else {
-            cell.classList.remove("highlight");
-          }
-        }
-      }
-    }
-
-    function renderPageNumbers() {
-      const pageContainer = document.getElementById("pageNumbers");
-      pageContainer.innerHTML = "";
-      const dataToUse = isFiltered ? filteredData : fullData;
-      const totalPages = Math.ceil(dataToUse.length / rowsPerPage);
-      
-      if (totalPages <= 1) return;
-      
-      addPageButton(1, pageContainer);
-      
-      if (currentPage > 3 && totalPages > 3) {
-        const ellipsis = document.createElement("span");
-        ellipsis.className = "ellipsis";
-        ellipsis.textContent = "...";
-        pageContainer.appendChild(ellipsis);
-      }
-      
-      if (currentPage > 1 && currentPage < totalPages) {
-        addPageButton(currentPage, pageContainer);
-      }
-      
-      if (currentPage < totalPages - 2 && totalPages > 3) {
-        const ellipsis = document.createElement("span");
-        ellipsis.className = "ellipsis";
-        ellipsis.textContent = "...";
-        pageContainer.appendChild(ellipsis);
-      }
-      
-      if (totalPages > 1) {
-        addPageButton(totalPages, pageContainer);
-      }
-    }
-
-    function addPageButton(pageNumber, container) {
-      const btn = document.createElement("button");
-      btn.textContent = pageNumber;
-      if (pageNumber === currentPage) btn.classList.add("active");
-      btn.onclick = () => {
-        currentPage = pageNumber;
-        if (isFiltered) {
-          renderFilteredPage(currentPage);
-        } else {
-          renderPage(currentPage, true);
-        }
-      };
-      container.appendChild(btn);
-    }
-
-    function prevPage() {
-      if (currentPage > 1) {
-        currentPage--;
-        if (isFiltered) {
-          renderFilteredPage(currentPage);
-        } else {
-          renderPage(currentPage, true);
-        }
-      }
-    }
-
-    function nextPage() {
-      const dataToUse = isFiltered ? filteredData : fullData;
-      if (currentPage * rowsPerPage < dataToUse.length) {
-        currentPage++;
-        if (isFiltered) {
-          renderFilteredPage(currentPage);
-        } else {
-          renderPage(currentPage, true);
-        }
-      }
-    }
-
-    function filterByMachineFromCard(rowNumber) {
-      const row = fullData.find(r => r[0] === rowNumber);
-      if (!row) return;
-      
-      const machineName = row[1];
-      currentFilterType = 'machine';
-      currentFilterValue = machineName;
-      
-      filteredData = fullData.filter(row => 
-        row[1] === machineName && !row[5]
-      );
-      
-      isFiltered = true;
-      currentPage = 1;
-      renderFilteredPage(currentPage);
-      
-      document.getElementById('showAllButton').style.display = 'block';
-    }
-
-    function filterByTaskFromCard(rowNumber) {
-      const row = fullData.find(r => r[0] === rowNumber);
-      if (!row) return;
-      
-      const taskName = row[2];
-      currentFilterType = 'task';
-      currentFilterValue = taskName;
-      
-      filteredData = fullData.filter(row => 
-        row[2] === taskName && !row[5]
-      );
-      
-      isFiltered = true;
-      currentPage = 1;
-      renderFilteredPage(currentPage);
-      
-      document.getElementById('showAllButton').style.display = 'block';
-    }
-
-    function showAllTasks() {
-      isFiltered = false;
-      currentFilterType = null;
-      currentFilterValue = null;
-      currentPage = 1;
-      renderPage(currentPage);
-      
-      document.getElementById('showAllButton').style.display = 'none';
-      
-      if (selectedRowId) {
-        hideCardButtons(selectedRowId);
-        const selectedCard = document.getElementById(`card-${selectedRowId}`);
-        if (selectedCard) {
-          selectedCard.classList.remove('selected');
-        }
-        selectedRowId = null;
-        selectedRowData = null;
-      }
-      
-      if (isDateFilterActive) {
-        clearDateFilter();
-      }
-    }
-  </script>
+// Закрытие по клику на overlay
+document.getElementById('sheetOverlay').addEventListener('click', closeClubSheet);
+</script>
 </body>
 </html>
