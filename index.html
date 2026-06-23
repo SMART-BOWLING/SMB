@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -426,8 +426,8 @@
             </div>
             <div class="action-card" id="card-analysis">
                 <button class="action-btn" onclick="handleAction('analysis', this)">
-                    <i class="fas fa-bowling-ball"></i>
-                    <span>Analysis</span>
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Parts Order</span>
                 </button>
             </div>
         </div>
@@ -866,7 +866,7 @@ function showClubSheet(type, clubs) {
         parts: 'Запчасти',
         maintenance: 'Обслуживание',
         fps: 'FPS',
-        analysis: 'Аналитика'
+        analysis: 'Parts Order'
     }[type] || type;
     
     title.textContent = `Выберите клуб: ${typeName}`;
