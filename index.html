@@ -425,7 +425,7 @@
                 </button>
             </div>
             <div class="action-card" id="card-analysis">
-                <button class="action-btn" onclick="handleAction('analysis', this)">
+                <button class="action-btn" onclick="window.location.href='https://smart-bowling.github.io/PARTS-ORDER/'">
                     <i class="fas fa-clipboard-list"></i>
                     <span>Parts Order</span>
                 </button>
@@ -866,7 +866,7 @@ function showClubSheet(type, clubs) {
         parts: 'Запчасти',
         maintenance: 'Обслуживание',
         fps: 'FPS',
-        analysis: 'Parts Order'
+        analysis: 'Аналитика'
     }[type] || type;
     
     title.textContent = `Выберите клуб: ${typeName}`;
